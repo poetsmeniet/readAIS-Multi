@@ -7,9 +7,8 @@
 
 void parseMsg(char * line, aisP *aisMsg){
     //Extract fields and store in struct
-    
     char *token, *str, *tofree;
-    tofree = str = strdup(line);  // We own str's memory now.
+    tofree = str = strdup(line);  
     size_t tokNr = 1;
     while ((token = strsep(&str, ","))){ 
         if(tokNr == 1)
