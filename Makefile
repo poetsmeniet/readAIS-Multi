@@ -1,6 +1,6 @@
 NAME = readAIS-Multi
 
-CODE_FILES = readAIS-Multi.c readAIS-Multi-parse.c
+CODE_FILES = main.c readAIS-Multi-parse.c
 
 DOC_FILES = docs
 DEBUG = YES
