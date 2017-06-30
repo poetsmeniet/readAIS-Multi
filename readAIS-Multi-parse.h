@@ -9,7 +9,7 @@ typedef struct aisPacket{
     char chanCode;
     char payload[100];
     size_t padding;
-    size_t checksum;
+    char checksum[10];
 }aisP;
 
 void printErr(char *msg);

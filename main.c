@@ -14,7 +14,7 @@
 FILE *openDevice();
 
 void printStruct(aisP *aisMsg){
-    printf("Printing current struct: %s, %s\n", aisMsg->packetType, aisMsg->payload);
+    printf("Printing current struct: %s, %i, %s\n", aisMsg->packetType, aisMsg->fragCnt, aisMsg->payload);
 }
 
 int main(void){
