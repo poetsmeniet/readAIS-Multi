@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "readAIS-Multi-parse.h"
 #define MAXLEN 120
 #define DEVICE "/dev/ttyUSB0"
@@ -12,6 +13,10 @@
 
 FILE *openDevice();
 
+void printStruct(aisP *aisMsg){
+    printf("Printing current struct: %s, %s\n", aisMsg->packetType, aisMsg->payload);
+}
+
 int main(void){
     aisP aisMsg;
     char *line = (char *) malloc(sizeof(char) * MAXLEN);
@@ -21,7 +26,10 @@ int main(void){
     while(1){
         getline(&line, &len, fp);
 
-        parseMsg(line, aisMsg);
+        parseMsg(line, &aisMsg);
+    
+        if(strcmp(aisMsg.packetType, "!AIVDM") == 0)
+            printStruct(&aisMsg);
     }
 
     return 0;

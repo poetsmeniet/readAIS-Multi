@@ -14,6 +14,6 @@ typedef struct aisPacket{
 
 void printErr(char *msg);
 
-void parseMsg(char * line, aisP aisMsg);
+void parseMsg(char * line, aisP *aisMsg);
 
 #endif
