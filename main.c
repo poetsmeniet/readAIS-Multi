@@ -13,6 +13,7 @@
 FILE *openDevice();
 
 int main(void){
+    aisP aisMsg;
     char *line = (char *) malloc(sizeof(char) * MAXLEN);
     size_t len = 0;
     
@@ -20,7 +21,7 @@ int main(void){
     while(1){
         getline(&line, &len, fp);
 
-        parseMsg(line);
+        parseMsg(line, aisMsg);
     }
 
     return 0;
