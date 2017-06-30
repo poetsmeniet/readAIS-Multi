@@ -1,7 +1,7 @@
 #ifndef readAISMultiparse_H_
 #define readAISMultiparse_H_
 
-struct aisMessage{
+typedef struct aisPacket{
     char packetType[20];
     size_t fragCnt;
     size_t fragNr;
@@ -10,10 +10,10 @@ struct aisMessage{
     char payload[100];
     size_t padding;
     size_t checksum;
-};
+}aisP;
 
 void printErr(char *msg);
 
-void parseMsg(char * line);
+void parseMsg(char * line, aisP aisMsg);
 
 #endif
