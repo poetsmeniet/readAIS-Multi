@@ -18,13 +18,13 @@ void parseMsg(char * line, aisP *aisMsg){
         if(tokNr == 3)
             aisMsg->fragNr = atoi(token);
         if(tokNr == 4)
-            aisMsg->seqId= atoi(token);
+            aisMsg->seqId = atoi(token);
         if(tokNr == 5)
-            aisMsg->chanCode= atoi(token);
+            aisMsg->chanCode = *token;
         if(tokNr == 6)
             strncpy(aisMsg->payload, token, sizeof(aisMsg->payload));
         if(tokNr == 7)
-            strncpy(aisMsg->checksum, token, sizeof(aisMsg->checksum));
+            aisMsg->padding = atoi(token);
         tokNr++;
     }
     free(tofree);
