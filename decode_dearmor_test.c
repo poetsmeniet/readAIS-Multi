@@ -1,12 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void ret6bit(char myChar, char *sixbits){
-    //char myChar = 'A';
     int i;
     size_t bit = 0;
     int cnt = 5;
     for (i = 0; i < 7; i++) {
-        //bit = !!((myChar << i) & 1);
         bit = myChar >> i & 1;
         sixbits[cnt] = bit + '0';
         cnt--;
@@ -15,11 +15,13 @@ void ret6bit(char myChar, char *sixbits){
 }
 
 int main(void){
-    char payl[] = "13P7fBIP00Olim<Lt3Vpkwv62L0<";
-    //char payl[] = "B3P7E?000?u<HrW?09@Nwwp5oP06";
+    char payl[] = "B3P=Ot000?u;tTW?G0L93w`UoP06";
     int i = 0;
 
-printf("Payload '%s' has %i chars\n", payl, (sizeof(payl) - 1));
+    size_t paylSz = ((sizeof(payl) * sizeof(char)) - 1);
+    printf("Payload '%s' has %i chars\n", payl, paylSz);
+
+    char *concatstr = (char *) malloc(paylSz  * 6 * sizeof(char) + 1);
 
     while(payl[i] != '\0'){
         //To recover (de-armor) the six bits, subtract 48 from the ASCII character value; if the result is greater than 40 subtract 8
@@ -28,8 +30,10 @@ printf("Payload '%s' has %i chars\n", payl, (sizeof(payl) - 1));
             res1 -= 8;
 
         char sixbits[6];
-        char testChar = 't';
         ret6bit(res1, sixbits);
+        //add to conactenated string
+        strncat(concatstr, sixbits, (sizeof(sixbits)));
+
         printf("'%c' = %i - 48 = %i \t :: bits: %s\n", payl[i], payl[i], res1, sixbits);
 
         //Concatenate all six-bit quantities found in the payload, MSB first. This is the binary payload of the sentence.
@@ -37,11 +41,14 @@ printf("Payload '%s' has %i chars\n", payl, (sizeof(payl) - 1));
         
         i++;
     }
+
+    printf("\nConcat string: %s\n", concatstr);
     //Data in AIS message payloads (what you get after undoing the AIVDM/AIVDO armoring) is encoded as bitfields in the sentence
     //
     //- Class A type 1,2,3 position report implementation:
     // (page 9)
 
 
-
+    free(concatstr);
+    return 0;
 }
