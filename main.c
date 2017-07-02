@@ -14,7 +14,7 @@
 FILE *openDevice();
 
 void printStruct(aisP *aisMsg){
-    printf("Printing current struct: %s, %i, %s\n", aisMsg->packetType, aisMsg->fragCnt, aisMsg->payload);
+    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n", aisMsg->chanCode, aisMsg->packetType, aisMsg->fragNr, aisMsg->fragCnt, aisMsg->payload, aisMsg->padding);
 }
 
 int main(void){
@@ -31,7 +31,7 @@ int main(void){
         if(strcmp(aisMsg.packetType, "!AIVDM") == 0)
             printStruct(&aisMsg);
     }
-
+    free(line);
     return 0;
 }
 
