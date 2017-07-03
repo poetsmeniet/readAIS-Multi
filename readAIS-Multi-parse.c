@@ -45,15 +45,6 @@ void ret6bit(char myChar, char *sixbits){
 void returnBinaryPayload(char *payl){
     int i = 0;
 
-    //char payl[] = "B3P=Ot000?u;tTW?G0L93w`UoP06";
-    //char payl[] = "test"; //works
-    //char *payl = malloc(sizeof(char) * 6);
-    //payl[0] = 't';
-    //payl[1] = 'e';
-    //payl[2] = 's';
-    //payl[3] = 't';
-    //payl[4] = '1';
-    //payl[5] = '\0';
 
     //size_t paylSz = ((sizeof(payl) * sizeof(char)) - 1);
     size_t paylSz = strlen(payl);
@@ -76,7 +67,7 @@ void returnBinaryPayload(char *payl){
         i++;
     }
 
-    printf("\nBinary payload (sz: %d): %s\n",strlen(concatstr) , concatstr);
+    printf("Binary payload (sz: %d): %s\n\n",strlen(concatstr) , concatstr);
 
     //free(concatstr); //this seems to be conflicting with out of scope de-alloc?
  
