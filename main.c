@@ -40,7 +40,7 @@ int main(void){
             printStruct(&aisPacket);
 
             //Get binary payload
-            returnBinaryPayload(aisPacket.payload);
+            returnBinaryPayload(aisPacket.payload, &aisPacket);
         }
     }
     free(line);

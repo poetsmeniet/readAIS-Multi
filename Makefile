@@ -13,7 +13,7 @@ endif
 .PHONY: all clean docs
 
 all: $(CODE_FILES)
-	gcc -Wextra -fsanitize=undefined -Wall -g -o $(NAME) $(CODE_FILES)
+	gcc -Wno-parentheses -Wextra -fsanitize=undefined -Wall -g -o $(NAME) $(CODE_FILES)
 
 #docs: Doxyfile
 #	doxygen Doxyfile

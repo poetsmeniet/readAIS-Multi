@@ -42,7 +42,7 @@ void ret6bit(char myChar, char *sixbits){
         sixbits[6] = '\0';
 }
 
-void returnBinaryPayload(char *payl){
+void returnBinaryPayload(char *payl, aisP *aisPacket){
     int i = 0;
 
 
