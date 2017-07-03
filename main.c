@@ -13,12 +13,12 @@
 
 FILE *openDevice();
 
-void printStruct(aisP *aisMsg){
-    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n", aisMsg->chanCode, aisMsg->packetType, aisMsg->fragNr, aisMsg->fragCnt, aisMsg->payload, aisMsg->padding);
+void printStruct(aisP *aisPacket){
+    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n", aisPacket->chanCode, aisPacket->packetType, aisPacket->fragNr, aisPacket->fragCnt, aisPacket->payload, aisPacket->padding);
 }
 
 int main(void){
-    aisP aisMsg;
+    aisP aisPacket;
     char *line = (char *) malloc(sizeof(char) * MAXLEN);
     size_t len = 0;
     
@@ -26,27 +26,21 @@ int main(void){
     while(1){
         getline(&line, &len, fp);
         //Get packet details into convenient struct
-        parseMsg(line, &aisMsg);
+        parseMsg(line, &aisPacket);
     
         //Debug print
         if(
-                aisMsg.fragCnt == 1\
-                || aisMsg.payload[0] == '1'\
-                && aisMsg.fragCnt == 1\
-                || aisMsg.payload[0] == '2'\
-                && aisMsg.fragCnt == 1\
-                || aisMsg.payload[0] == '3'\
-                && aisMsg.fragCnt == 1\
-                || aisMsg.payload[0] == 'B'\
-                && aisMsg.fragCnt == 1\
-                || aisMsg.payload[0] == 'C'\
-                && aisMsg.fragCnt == 1\
+                aisPacket.fragCnt == 1 || aisPacket.payload[0] == '1'\
+                && (aisPacket.fragCnt == 1 || aisPacket.payload[0]) == '2'\
+                && (aisPacket.fragCnt == 1 || aisPacket.payload[0]) == '3'\
+                && (aisPacket.fragCnt == 1 || aisPacket.payload[0]) == 'B'\
+                && (aisPacket.fragCnt == 1 || aisPacket.payload[0]) == 'C'\
                 ){
             printf("Whole msg: %s\n", line);
-            printStruct(&aisMsg);
+            printStruct(&aisPacket);
 
             //Get binary payload
-            returnBinaryPayload(aisMsg.payload);
+            returnBinaryPayload(aisPacket.payload);
         }
     }
     free(line);

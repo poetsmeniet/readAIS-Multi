@@ -5,26 +5,26 @@
 
 //Protocol description: http://catb.org/gpsd/AIVDM.html#_open_source_implementations
 
-void parseMsg(char *line, aisP *aisMsg){
+void parseMsg(char *line, aisP *aisPacket){
     //Extract fields and store in struct
     char *token, *str, *tofree;
     tofree = str = strdup(line);  
     size_t tokNr = 1;
     while ((token = strsep(&str, ","))){ 
         if(tokNr == 1)
-            strncpy(aisMsg->packetType, token, sizeof(aisMsg->packetType));
+            strncpy(aisPacket->packetType, token, sizeof(aisPacket->packetType));
         if(tokNr == 2)
-            aisMsg->fragCnt = atoi(token);
+            aisPacket->fragCnt = atoi(token);
         if(tokNr == 3)
-            aisMsg->fragNr = atoi(token);
+            aisPacket->fragNr = atoi(token);
         if(tokNr == 4)
-            aisMsg->seqId = atoi(token);
+            aisPacket->seqId = atoi(token);
         if(tokNr == 5)
-            aisMsg->chanCode = *token;
+            aisPacket->chanCode = *token;
         if(tokNr == 6)
-            strncpy(aisMsg->payload, token, sizeof(aisMsg->payload));
+            strncpy(aisPacket->payload, token, sizeof(aisPacket->payload));
         if(tokNr == 7)
-            aisMsg->padding = atoi(token);
+            aisPacket->padding = atoi(token);
         tokNr++;
     }
     free(tofree);
