@@ -46,7 +46,7 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
     int i = 0;
 
     size_t paylSz = strlen(payl);
-    //printf("Payload '%s' has %i chars\n", payl, paylSz);
+    printf("Payload '%s' has %i chars\n", payl, paylSz);
 
     char *concatstr = (char *) malloc(paylSz  * 7 * sizeof(char) + 1);
     

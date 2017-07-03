@@ -11,7 +11,7 @@ typedef struct aisPacket{
     size_t padding;
     char checksum[10];
     char binaryPayload[500];
-    unsigned int MMSI[9];
+    unsigned int MMSI;
 }aisP;
 
 void printErr(char *msg);
