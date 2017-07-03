@@ -42,6 +42,20 @@ void ret6bit(char myChar, char *sixbits){
         sixbits[6] = '\0';
 }
 
+//Returns substring using given index
+int retSubstring(char *myStr, size_t start, size_t end, char *subStr){
+    if(end > start){
+        char *s = &myStr[start];
+        char *e = &myStr[end + 1];
+
+        memcpy(subStr, s, e - s);
+        return 0;
+    }else{
+        printf("retSubstring error: end is greater than start.\n");
+        return 1;
+    }
+}
+
 void returnBinaryPayload(char *payl, aisP *aisPacket){
     int i = 0;
 
@@ -56,16 +70,23 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
         if(res1 > 40)
             res1 -= 8;
 
+        //Return 6 bit ascii value
         char sixbits[6];
         ret6bit(res1, sixbits);
+
         //add to conactenated string
         strncat(concatstr, sixbits, (sizeof(sixbits)));
-        //printf("'%c' = %i - 48 = %i \t :: bits: %s\n", payl[i], payl[i], res1, sixbits);
 
         i++;
     }
 
     strncpy(aisPacket->binaryPayload, concatstr, strlen(concatstr) + 1);
+
+    size_t start = 8;
+    size_t end = 37;
+    char *subStr = (char *) malloc(sizeof(char) * (end - start));
+    retSubstring(concatstr, start, end, subStr);
+    printf("\nMMSI (binary):: %s\n", subStr);
 
     //free(concatstr); //this seems to be conflicting with out of scope de-alloc?
  

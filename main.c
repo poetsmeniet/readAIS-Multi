@@ -30,11 +30,11 @@ int main(void){
     
         //Debug print
         if(
-                aisPacket.fragCnt == 1 || aisPacket.payload[0] == '1'\
-                && (aisPacket.fragCnt == 1 || aisPacket.payload[0]) == '2'\
-                && (aisPacket.fragCnt == 1 || aisPacket.payload[0]) == '3'\
-                && (aisPacket.fragCnt == 1 || aisPacket.payload[0]) == 'B'\
-                && (aisPacket.fragCnt == 1 || aisPacket.payload[0]) == 'C'\
+                aisPacket.fragCnt == 1 && aisPacket.payload[0] == '1'\
+                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == '2'\
+                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == '3'\
+                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'B'\
+                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'C'\
                 ){
 
             //Get binary payload
