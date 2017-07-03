@@ -25,19 +25,17 @@ int main(void){
     FILE *fp = openDevice();
     while(1){
         getline(&line, &len, fp);
-
+        sleep(1);
         //Get packet details into convenient struct
         parseMsg(line, &aisMsg);
     
         //Debug print
-        if(strcmp(aisMsg.packetType, "!AIVDM") == 0){
+        if(strcmp(aisMsg.packetType, "!AIVDM") == 0\
+                && aisMsg.fragCnt == 1){
             printStruct(&aisMsg);
             //Get binary payload
             returnBinaryPayload(aisMsg.payload);
-            sleep(1);
         }
-
-
     }
     free(line);
     return 0;

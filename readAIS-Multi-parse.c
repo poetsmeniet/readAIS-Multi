@@ -34,7 +34,7 @@ void ret6bit(char myChar, char *sixbits){
     int i;
     size_t bit = 0;
     int cnt = 5;
-    for (i = 0; i < 7; i++) {
+    for (i = 0; i < 6; i++) {
         bit = myChar >> i & 1;
         sixbits[cnt] = bit + '0';
         cnt--;
@@ -42,15 +42,25 @@ void ret6bit(char myChar, char *sixbits){
         sixbits[6] = '\0';
 }
 
-void returnBinaryPayload(char *payl2){
+void returnBinaryPayload(char *payl){
     int i = 0;
 
-    char payl[] = "B3P=Ot000?u;tTW?G0L93w`UoP06";
-    size_t paylSz = ((sizeof(payl) * sizeof(char)) - 1);
+    //char payl[] = "B3P=Ot000?u;tTW?G0L93w`UoP06";
+    //char payl[] = "test"; //works
+    //char *payl = malloc(sizeof(char) * 6);
+    //payl[0] = 't';
+    //payl[1] = 'e';
+    //payl[2] = 's';
+    //payl[3] = 't';
+    //payl[4] = '1';
+    //payl[5] = '\0';
+
+    //size_t paylSz = ((sizeof(payl) * sizeof(char)) - 1);
+    size_t paylSz = strlen(payl);
     printf("Payload '%s' has %i chars\n", payl, paylSz);
 
-    char *concatstr = (char *) malloc(paylSz  * 6 * sizeof(char) + 1);
-
+    char *concatstr = (char *) malloc(paylSz  * 7 * sizeof(char) + 1);
+    
     while(payl[i] != '\0'){
         //To recover (de-armor) the six bits, subtract 48 from the ASCII character value; if the result is greater than 40 subtract 8
         int res1 = (payl[i] - 48);
@@ -61,14 +71,12 @@ void returnBinaryPayload(char *payl2){
         ret6bit(res1, sixbits);
         //add to conactenated string
         strncat(concatstr, sixbits, (sizeof(sixbits)));
-
-        printf("'%c' = %i - 48 = %i \t :: bits: %s\n", payl[i], payl[i], res1, sixbits);
+        //printf("'%c' = %i - 48 = %i \t :: bits: %s\n", payl[i], payl[i], res1, sixbits);
 
         i++;
     }
 
-    printf("\nConcat string: %s\n", concatstr);
-    sleep(1);
+    printf("\nBinary payload (sz: %d): %s\n",strlen(concatstr) , concatstr);
 
     //free(concatstr); //this seems to be conflicting with out of scope de-alloc?
  
