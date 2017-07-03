@@ -5,7 +5,7 @@
 
 //Protocol description: http://catb.org/gpsd/AIVDM.html#_open_source_implementations
 
-void parseMsg(char * line, aisP *aisMsg){
+void parseMsg(char *line, aisP *aisMsg){
     //Extract fields and store in struct
     char *token, *str, *tofree;
     tofree = str = strdup(line);  
@@ -28,6 +28,50 @@ void parseMsg(char * line, aisP *aisMsg){
         tokNr++;
     }
     free(tofree);
+}
+
+void ret6bit(char myChar, char *sixbits){
+    int i;
+    size_t bit = 0;
+    int cnt = 5;
+    for (i = 0; i < 7; i++) {
+        bit = myChar >> i & 1;
+        sixbits[cnt] = bit + '0';
+        cnt--;
+    }
+        sixbits[6] = '\0';
+}
+
+void returnBinaryPayload(char *payl2){
+    int i = 0;
+
+    char payl[] = "B3P=Ot000?u;tTW?G0L93w`UoP06";
+    size_t paylSz = ((sizeof(payl) * sizeof(char)) - 1);
+    printf("Payload '%s' has %i chars\n", payl, paylSz);
+
+    char *concatstr = (char *) malloc(paylSz  * 6 * sizeof(char) + 1);
+
+    while(payl[i] != '\0'){
+        //To recover (de-armor) the six bits, subtract 48 from the ASCII character value; if the result is greater than 40 subtract 8
+        int res1 = (payl[i] - 48);
+        if(res1 > 40)
+            res1 -= 8;
+
+        char sixbits[6];
+        ret6bit(res1, sixbits);
+        //add to conactenated string
+        strncat(concatstr, sixbits, (sizeof(sixbits)));
+
+        printf("'%c' = %i - 48 = %i \t :: bits: %s\n", payl[i], payl[i], res1, sixbits);
+
+        i++;
+    }
+
+    printf("\nConcat string: %s\n", concatstr);
+    sleep(1);
+
+    //free(concatstr); //this seems to be conflicting with out of scope de-alloc?
+ 
 }
 
 void printErr(char *msg){

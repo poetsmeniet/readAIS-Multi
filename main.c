@@ -26,10 +26,18 @@ int main(void){
     while(1){
         getline(&line, &len, fp);
 
+        //Get packet details into convenient struct
         parseMsg(line, &aisMsg);
     
-        if(strcmp(aisMsg.packetType, "!AIVDM") == 0)
+        //Debug print
+        if(strcmp(aisMsg.packetType, "!AIVDM") == 0){
             printStruct(&aisMsg);
+            //Get binary payload
+            returnBinaryPayload(aisMsg.payload);
+            sleep(1);
+        }
+
+
     }
     free(line);
     return 0;

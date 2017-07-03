@@ -16,4 +16,6 @@ void printErr(char *msg);
 
 void parseMsg(char * line, aisP *aisMsg);
 
+void returnBinaryPayload(char *payl);
+
 #endif
