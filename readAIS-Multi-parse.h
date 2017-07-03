@@ -10,6 +10,7 @@ typedef struct aisPacket{
     char payload[100];
     size_t padding;
     char checksum[10];
+    char binaryPayload[500];
     unsigned int MMSI[9];
 }aisP;
 
