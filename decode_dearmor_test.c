@@ -35,19 +35,11 @@ int main(void){
         strncat(concatstr, sixbits, (sizeof(sixbits)));
 
         printf("'%c' = %i - 48 = %i \t :: bits: %s\n", payl[i], payl[i], res1, sixbits);
-
-        //Concatenate all six-bit quantities found in the payload, MSB first. This is the binary payload of the sentence.
-        //todo..
         
         i++;
     }
 
     printf("\nConcat string: %s\n", concatstr);
-    //Data in AIS message payloads (what you get after undoing the AIVDM/AIVDO armoring) is encoded as bitfields in the sentence
-    //
-    //- Class A type 1,2,3 position report implementation:
-    // (page 9)
-
 
     free(concatstr);
     return 0;
