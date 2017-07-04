@@ -14,7 +14,7 @@
 FILE *openDevice();
 
 void printStruct(aisP *aisPacket){
-    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\nBinary payload: %s\n- MMSI: %i\n\n", aisPacket->chanCode, aisPacket->packetType, aisPacket->fragNr, aisPacket->fragCnt, aisPacket->payload, aisPacket->padding, aisPacket->binaryPayload, aisPacket->MMSI);
+    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- MMSI: %i\n\n", aisPacket->chanCode, aisPacket->packetType, aisPacket->fragNr, aisPacket->fragCnt, aisPacket->payload, aisPacket->padding, aisPacket->MMSI);
 }
 
 int main(void){
