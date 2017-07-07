@@ -13,8 +13,8 @@
 
 FILE *openDevice();
 
-void printStruct(aisP *aisPacket){
-    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- MMSI: %i\n\n", aisPacket->chanCode, aisPacket->packetType, aisPacket->fragNr, aisPacket->fragCnt, aisPacket->payload, aisPacket->padding, aisPacket->MMSI);
+void printStruct(aisP *p){
+    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- MMSI: %i\n- heading: %d\n\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->MMSI, p->heading);
 }
 
 int main(void){
@@ -35,10 +35,31 @@ int main(void){
                 || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == '3'\
                 || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'B'\
                 || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'C'\
+                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'D'\
                 ){
 
-            //Get binary payload
+            //Get binary payload into struct
             returnBinaryPayload(aisPacket.payload, &aisPacket);
+
+
+            // *** this needs to be generalized
+            //get binary payload for MMSI at offset 8-37, and convert to decimal
+            size_t start = 8;
+            size_t end = 37;
+            char *subStr = (char *) malloc(sizeof(char) * (end - start));
+            retSubstring(aisPacket.binaryPayload, start, end, subStr);
+            aisPacket.MMSI = returnUIntFromBin(subStr);
+            free(subStr);
+
+            //get true heading
+            start = 124;
+            end = 132;
+            char *subStr2 = (char *) malloc(sizeof(char) * (end - start));
+            retSubstring(aisPacket.binaryPayload, start, end, subStr2);
+            aisPacket.heading = returnUIntFromBin(subStr2);
+            free(subStr2);
+
+
             printStruct(&aisPacket);
         }
     }

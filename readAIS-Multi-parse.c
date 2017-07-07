@@ -43,20 +43,19 @@ unsigned int power(unsigned int base, unsigned int exp){
     return result;
 }
 
-unsigned int returnMMSI(char *MMSIbin){
-    int sz = strlen(MMSIbin);
+unsigned int returnUIntFromBin(char *bin){
+    int sz = strlen(bin);
 
     int cnt = 0;
     int cntRev = sz - 1;
     int decimal = 0;
     for(cnt = 0; cnt < sz; cnt++){
-        if(MMSIbin[cnt] == '1'){
+        if(bin[cnt] == '1'){
             decimal += power(2, cntRev);
         }
         cntRev--;
     }
     return decimal;
-
 }
 
 void ret6bit(char myChar, char *sixbits){
@@ -110,13 +109,6 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
     }
 
     strncpy(aisPacket->binaryPayload, concatstr, strlen(concatstr) + 1);
-
-    //get binary payload for MMSI at offset 8-37, and convert to decimal
-    size_t start = 8;
-    size_t end = 37;
-    char *subStr = (char *) malloc(sizeof(char) * (end - start));
-    retSubstring(concatstr, start, end, subStr);
-    aisPacket->MMSI = returnMMSI(subStr);
 
     //free(concatstr); //this seems to be conflicting with out of scope de-alloc?
  

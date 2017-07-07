@@ -11,6 +11,8 @@ typedef struct aisPacket{
     size_t padding;
     char checksum[10];
     char binaryPayload[500];
+    size_t sog;
+    size_t heading;
     unsigned int MMSI;
 }aisP;
 
@@ -19,5 +21,9 @@ void printErr(char *msg);
 void parseMsg(char *line, aisP *aisMsg);
 
 void returnBinaryPayload(char *payl, aisP *aisPacket);
+
+unsigned int returnUIntFromBin(char *bin);
+
+int retSubstring(char *myStr, size_t start, size_t end, char *subStr);
 
 #endif
