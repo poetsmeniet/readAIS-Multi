@@ -14,7 +14,7 @@
 FILE *openDevice();
 
 void printStruct(aisP *p){
-    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- MMSI: %i\n- heading: %d\n\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->MMSI, p->heading);
+    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- msgType: %d\n- MMSI: %i\n- heading: %d\n\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->msgType, p->MMSI, p->heading);
 }
 
 int main(void){
@@ -36,7 +36,8 @@ int main(void){
                 || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'B'\
                 || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'C'\
                 || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'D'\
-                ){
+                )
+        {
 
             //Get binary payload into struct
             returnBinaryPayload(aisPacket.payload, &aisPacket);
@@ -59,6 +60,13 @@ int main(void){
             aisPacket.heading = returnUIntFromBin(subStr2);
             free(subStr2);
 
+            //get message type
+            start = 0;
+            end = 5;
+            char *subStr3 = (char *) malloc(sizeof(char) * (end - start));
+            retSubstring(aisPacket.binaryPayload, start, end, subStr3);
+            aisPacket.msgType= returnUIntFromBin(subStr3);
+            free(subStr3);
 
             printStruct(&aisPacket);
         }
