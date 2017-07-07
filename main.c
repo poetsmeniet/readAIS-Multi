@@ -29,36 +29,37 @@ int main(void){
         parseMsg(line, &aisPacket);
     
         //Debug print
-        if(
-                aisPacket.fragCnt == 1 && aisPacket.payload[0] == '1'\
-                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == '2'\
-                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == '3'\
-                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'B'\
-                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'C'\
-                || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'D'\
-                )
-        {
+        //if(
+        //        aisPacket.fragCnt == 1 && aisPacket.payload[0] == '1'\
+        //        || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == '2'\
+        //        || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == '3'\
+        //        || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'B'\
+        //        || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'C'\
+        //        || (aisPacket.fragCnt == 1 && aisPacket.payload[0]) == 'D'\
+        //        )
+        //{
 
             //Get binary payload into struct
             returnBinaryPayload(aisPacket.payload, &aisPacket);
 
 
             // *** this needs to be generalized
-            //get binary payload for MMSI at offset 8-37, and convert to decimal
-            size_t start = 8;
-            size_t end = 37;
-            char *subStr = (char *) malloc(sizeof(char) * (end - start));
-            retSubstring(aisPacket.binaryPayload, start, end, subStr);
-            aisPacket.MMSI = returnUIntFromBin(subStr);
-            free(subStr);
-
             //get true heading
-            start = 124;
-            end = 132;
+            size_t start = 124;
+            size_t end = 132;
             char *subStr2 = (char *) malloc(sizeof(char) * (end - start));
             retSubstring(aisPacket.binaryPayload, start, end, subStr2);
             aisPacket.heading = returnUIntFromBin(subStr2);
-            free(subStr2);
+            //free(subStr2);
+            
+            //get binary payload for MMSI at offset 8-37, and convert to decimal
+            start = 8;
+            end = 37;
+            char *subStr = (char *) malloc(sizeof(char) * (end - start));
+            retSubstring(aisPacket.binaryPayload, start, end, subStr);
+            aisPacket.MMSI = returnUIntFromBin(subStr);
+            //free(subStr);
+
 
             //get message type
             start = 0;
@@ -66,10 +67,18 @@ int main(void){
             char *subStr3 = (char *) malloc(sizeof(char) * (end - start));
             retSubstring(aisPacket.binaryPayload, start, end, subStr3);
             aisPacket.msgType= returnUIntFromBin(subStr3);
-            free(subStr3);
+            //free(subStr3);
 
-            printStruct(&aisPacket);
-        }
+            //if(aisPacket.msgType == 18\
+            //        || aisPacket.msgType == 19\
+            //        || aisPacket.msgType == 1\
+            //        || aisPacket.msgType == 2\
+            //        || aisPacket.msgType == 3\
+            //        || aisPacket.msgType == 15\
+            //  ){
+                printStruct(&aisPacket);
+            //}
+        //}
     }
     free(line);
     return 0;
