@@ -14,7 +14,9 @@
 FILE *openDevice();
 
 void printStruct(aisP *p){
-    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f (%i) head: %d cog: %.2f\n- COG: %.2f\n\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->msgType, p->MMSI, p->heading, p->sog, p->MMSI, p->heading, p->cog, p->cog);
+    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f (%i) head: %d cog: %.2f\n- COG: %.2f\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->msgType, p->MMSI, p->heading, p->sog, p->MMSI, p->heading, p->cog, p->cog);
+
+    printf("- name: %s\n\n", p->name);
 }
 
 int main(void){
@@ -102,11 +104,25 @@ int main(void){
                 aisPacket.sog = 0.66666;
             }
 
+
+            if(aisPacket.msgType == 24){
+                //get ship name from type 24 message
+                start = 40;
+                end = 159;
+                char *subStr6 = (char *) malloc(sizeof(char) * (end - start));
+                retSubstring(aisPacket.binaryPayload, start, end, subStr6);
+                //aisPacket.name = COGtmp_returnU1FloatFromBin(subStr6);
+                strncpy(aisPacket.name, subStr6, sizeof(aisPacket.name));
+                //free(subStr6);
+            }
+
             if(aisPacket.msgType == 18\
-                || aisPacket.msgType == 19\
-                || aisPacket.msgType == 91\
-                || aisPacket.msgType == 92\
-                || aisPacket.msgType == 93\
+                || aisPacket.msgType == 9119\
+                || aisPacket.msgType == 915\
+                || aisPacket.msgType == 24\
+                || aisPacket.msgType == 911\
+                || aisPacket.msgType == 912\
+                || aisPacket.msgType == 913\
               ){
                 printStruct(&aisPacket);
             }
