@@ -14,7 +14,7 @@
 FILE *openDevice();
 
 void printStruct(aisP *p){
-    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f (%i) head: %d\n\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->msgType, p->MMSI, p->heading, p->sog, p->MMSI, p->heading);
+    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f (%i) head: %d cog: %.2f\n- COG: %.2f\n\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->msgType, p->MMSI, p->heading, p->sog, p->MMSI, p->heading, p->cog, p->cog);
 }
 
 int main(void){
@@ -43,7 +43,7 @@ int main(void){
             returnBinaryPayload(aisPacket.payload, &aisPacket);
 
 
-            // *** this needs to be generalized
+            // *** this needs to be generalized, now only coding for type 18 (class B)
             //get true heading
             size_t start = 124;
             size_t end = 132;
@@ -69,20 +69,44 @@ int main(void){
             aisPacket.msgType= returnUIntFromBin(subStr3);
             //free(subStr3);
 
-            //get speed over ground (std class b  CS position report
-            start = 46;
-            end = 55;
-            char *subStr4 = (char *) malloc(sizeof(char) * (end - start));
-            retSubstring(aisPacket.binaryPayload, start, end, subStr4);
-            aisPacket.sog= returnU1FloatFromBin(subStr4);
-            //free(subStr4);
-            
             if(aisPacket.msgType == 18\
-                    || aisPacket.msgType == 19\
-                    || aisPacket.msgType == 1\
+                    || aisPacket.msgType == 19){
+                //get speed over ground (std class b  CS position report
+                start = 46;
+                end = 55;
+                char *subStr4 = (char *) malloc(sizeof(char) * (end - start));
+                retSubstring(aisPacket.binaryPayload, start, end, subStr4);
+                aisPacket.sog= returnU1FloatFromBin(subStr4);
+                //free(subStr4);
+                
+                //get cog class b
+                size_t start = 112;
+                size_t end = 123;
+                char *subStr5 = (char *) malloc(sizeof(char) * (end - start));
+                retSubstring(aisPacket.binaryPayload, start, end, subStr5);
+                aisPacket.cog= COGtmp_returnU1FloatFromBin(subStr5);
+                //free(subStr5);
+            }else if(aisPacket.msgType == 1\
                     || aisPacket.msgType == 2\
                     || aisPacket.msgType == 3\
-                    || aisPacket.msgType == 15\
+                    ){
+                //get speed over ground (std class b  CS position report
+                start = 50;
+                end = 59;
+                char *subStr4 = (char *) malloc(sizeof(char) * (end - start));
+                retSubstring(aisPacket.binaryPayload, start, end, subStr4);
+                aisPacket.sog= returnU1FloatFromBin(subStr4);
+                //free(subStr4);
+
+            }else{
+                aisPacket.sog = 0.66666;
+            }
+
+            if(aisPacket.msgType == 18\
+                || aisPacket.msgType == 19\
+                || aisPacket.msgType == 91\
+                || aisPacket.msgType == 92\
+                || aisPacket.msgType == 93\
               ){
                 printStruct(&aisPacket);
             }
