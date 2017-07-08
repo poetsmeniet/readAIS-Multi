@@ -12,7 +12,7 @@ typedef struct aisPacket{
     char checksum[10];
     char binaryPayload[500];
     size_t msgType;
-    size_t sog;
+    float sog;
     size_t heading;
     unsigned int MMSI;
 }aisP;
@@ -24,7 +24,7 @@ void parseMsg(char *line, aisP *aisMsg);
 void returnBinaryPayload(char *payl, aisP *aisPacket);
 
 unsigned int returnUIntFromBin(char *bin);
+float returnU1FloatFromBin(char *bin);
 
 int retSubstring(char *myStr, size_t start, size_t end, char *subStr);
-
 #endif

@@ -58,6 +58,24 @@ unsigned int returnUIntFromBin(char *bin){
     return decimal;
 }
 
+//return unsigned float from binary string, 1 decimal place
+float returnU1FloatFromBin(char *bin){
+    int sz = strlen(bin);
+    printf("sz of unsigned 1: %d (%s)\n", sz, bin);
+    int cnt = 0;
+    int cntRev = sz - 1;
+    float floatU1 = 0.0;
+    for(cnt = 0; cnt < sz; cnt++){
+        if(bin[cnt] == '1'){
+            floatU1 += power(2, cntRev);
+        }
+        cntRev--;
+    }
+    floatU1 *= 0.1;
+    printf("returning now: %f\n", floatU1);
+    return floatU1;
+}
+
 void ret6bit(char myChar, char *sixbits){
     int i;
     size_t bit = 0;

@@ -14,7 +14,7 @@
 FILE *openDevice();
 
 void printStruct(aisP *p){
-    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- msgType: %d\n- MMSI: %i\n- heading: %d\n\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->msgType, p->MMSI, p->heading);
+    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f (%i) head: %d\n\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->msgType, p->MMSI, p->heading, p->sog, p->MMSI, p->heading);
 }
 
 int main(void){
@@ -69,15 +69,23 @@ int main(void){
             aisPacket.msgType= returnUIntFromBin(subStr3);
             //free(subStr3);
 
-            //if(aisPacket.msgType == 18\
-            //        || aisPacket.msgType == 19\
-            //        || aisPacket.msgType == 1\
-            //        || aisPacket.msgType == 2\
-            //        || aisPacket.msgType == 3\
-            //        || aisPacket.msgType == 15\
-            //  ){
+            //get speed over ground (std class b  CS position report
+            start = 46;
+            end = 55;
+            char *subStr4 = (char *) malloc(sizeof(char) * (end - start));
+            retSubstring(aisPacket.binaryPayload, start, end, subStr4);
+            aisPacket.sog= returnU1FloatFromBin(subStr4);
+            //free(subStr4);
+            
+            if(aisPacket.msgType == 18\
+                    || aisPacket.msgType == 19\
+                    || aisPacket.msgType == 1\
+                    || aisPacket.msgType == 2\
+                    || aisPacket.msgType == 3\
+                    || aisPacket.msgType == 15\
+              ){
                 printStruct(&aisPacket);
-            //}
+            }
         //}
     }
     free(line);
