@@ -116,7 +116,7 @@ int main(void){
                 //free(subStr6);
             }
 
-            if(aisPacket.msgType == 18\
+            if(aisPacket.msgType == 9118\
                 || aisPacket.msgType == 9119\
                 || aisPacket.msgType == 915\
                 || aisPacket.msgType == 24\

@@ -30,6 +30,11 @@ void parseMsg(char *line, aisP *aisPacket){
     free(tofree);
 }
 
+//return ascii value of six bit nibbles
+void returnAsciiFrom6bits(char *binString){
+
+}
+
 //Return power of unsigned integer
 unsigned int power(unsigned int base, unsigned int exp){
     unsigned int result = 1;
