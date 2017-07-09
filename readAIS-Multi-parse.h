@@ -15,7 +15,7 @@ typedef struct aisPacket{
     float sog;
     size_t heading;
     float cog;
-    char name[130];
+    char vesselName[400];
     unsigned int MMSI;
 }aisP;
 
@@ -30,4 +30,5 @@ float returnU1FloatFromBin(char *bin);
 float COGtmp_returnU1FloatFromBin(char *bin);
 
 int retSubstring(char *myStr, size_t start, size_t end, char *subStr);
+void returnAsciiFrom6bits(char *binString, aisP *aisPacket);
 #endif

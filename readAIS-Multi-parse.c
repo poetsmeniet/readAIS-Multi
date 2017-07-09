@@ -5,6 +5,36 @@
 
 //Protocol description: http://catb.org/gpsd/AIVDM.html#_open_source_implementations
 
+struct sixbitAsciiTable{
+    char bits[7];
+    char ascii;
+};
+
+struct sixbitAsciiTable sixbitAscii[64] = {
+    {"000000", ' '},{"000001", 'A'},{"000010", 'B'},
+    {"000011", 'C'},{"000100", 'D'},{"000101", 'E'},
+    {"000110", 'F'},{"000111", 'G'},{"001000", 'H'},
+    {"001001", 'I'},{"001010", 'J'},
+    {"001011", 'K'},{"001100", 'L'},{"001101", 'M'},
+    {"001110", 'N'},{"001111", 'O'},{"010000", 'P'},
+    {"010001", 'Q'},{"010010", 'R'},{"010011", 'S'},
+    {"010100", 'T'},{"010101", 'U'},{"010110", 'V'},
+    {"010111", 'W'},{"011000", 'X'},{"011001", 'Y'},
+    {"011010", 'Z'},{"011011", '['},{"011100", '\\'},
+    {"011101", ']'},{"011110", '^'},{"011111", '_'},
+    {"100000", ' '},{"100001", '!'},{"100010", '"'},
+    {"100011", '#'},{"100100", '$'},{"100101", '%'},
+    {"100110", '&'},{"100111", '/'},{"101000", '('},
+    {"101001", ')'},{"101010", '*'},{"101011", '+'},
+    {"101100", ','},{"101101", '-'},{"101110", '.'},
+    {"101111", '/'},{"110000", '0'},{"110001", '1'},
+    {"110010", '2'},{"110011", '3'},{"110100", '4'},
+    {"110101", '5'},{"110110", '6'},{"110111", '7'},
+    {"111000", '8'},{"111001", '9'},{"111010", ':'},
+    {"111011", ';'},{"111100", '<'},{"111101", '='},
+    {"111110", '>'},{"111111", '?'}
+};
+
 void parseMsg(char *line, aisP *aisPacket){
     //Extract fields and store in struct
     char *token, *str, *tofree;
@@ -28,11 +58,6 @@ void parseMsg(char *line, aisP *aisPacket){
         tokNr++;
     }
     free(tofree);
-}
-
-//return ascii value of six bit nibbles
-void returnAsciiFrom6bits(char *binString){
-
 }
 
 //Return power of unsigned integer
@@ -124,7 +149,6 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
     int i = 0;
 
     size_t paylSz = strlen(payl);
-    //printf("Payload '%s' has %i chars\n", payl, paylSz);
 
     char *concatstr = (char *) malloc(paylSz  * 7 * sizeof(char) + 1);
     
@@ -148,6 +172,37 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
 
     //free(concatstr); //this seems to be conflicting with out of scope de-alloc?
  
+}
+
+//return ascii value of six bit nibble strings
+void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
+    size_t sz = strlen(binString);
+    char *vesselName = malloc(sizeof(char) * sz + 1);
+
+    //Sanity check, vessel names not allways reliable
+    if(sz % 6 != 0){
+        printf("Binary string is not a multiple of 6, so probably invalid\n");
+        memcpy(vesselName, "<unkown>", sz);
+    }else{
+
+        size_t i = 0;
+        size_t j = 0;
+        size_t k = 0;
+        char *nibble = malloc(6 * sizeof(char));
+
+        for(i = 0; i < sz; i++){
+            nibble[j] = binString[i];
+            if(j == 5){
+                vesselName[k] = sixbitAscii[returnUIntFromBin(nibble)].ascii;
+                j = 0;
+                k++;
+            }else{
+                j++;
+            }
+        }
+        memcpy(aisPacket->vesselName, vesselName, sizeof(aisPacket->vesselName));
+    }
+    free(vesselName);
 }
 
 void printErr(char *msg){
