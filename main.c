@@ -14,15 +14,18 @@
 FILE *openDevice();
 
 void printStruct(aisP *p){
-    printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f (%i) head: %d cog: %.2f\n- COG: %.2f\n", p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding, p->msgType, p->MMSI, p->heading, p->sog, p->MMSI, p->heading, p->cog, p->cog);
+    //printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n", 
+    //p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding);
+    printf("VesselName: %s\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f (%i) head: %d cog: %.2f\n- COG: %.2f\n\n",\
+            p->vesselName, p->msgType, p->MMSI, p->heading, p->sog, p->MMSI, p->heading, p->cog, p->cog);
 
-    printf("- Vesselname: %s\n\n", p->vesselName);
 }
 
 int main(void){
     aisP aisPacket;
     char *line = (char *) malloc(sizeof(char) * MAXLEN);
     size_t len = 0;
+    char prevVesselName[40] = "Thisisjustaplaceholder";
     
     FILE *fp = openDevice();
     while(1){
@@ -111,9 +114,12 @@ int main(void){
            || aisPacket.msgType == 912\
            || aisPacket.msgType == 913\
          ){
-           printStruct(&aisPacket);
+           if(strcmp(aisPacket.vesselName, prevVesselName) != 0)
+            printStruct(&aisPacket);
        }
        
+       memcpy(prevVesselName, aisPacket.vesselName, sizeof(aisPacket.vesselName));
+
     }
     free(line);
     return 0;
