@@ -138,6 +138,7 @@ int retSubstring(char *myStr, size_t start, size_t end, char *subStr){
         char *e = &myStr[end + 1];
 
         memcpy(subStr, s, e - s);
+        subStr[end - start + 1] = '\0';
         return 0;
     }else{
         printf("retSubstring error: end is greater than start.\n");
@@ -182,7 +183,7 @@ void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
     //Sanity check, vessel names not allways reliable
     if(sz % 6 != 0){
         printf("Binary string is not a multiple of 6, so probably invalid\n");
-        memcpy(vesselName, "<unkown>", sz);
+        memcpy(vesselName, "_", sz);
     }else{
 
         size_t i = 0;

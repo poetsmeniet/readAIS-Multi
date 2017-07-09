@@ -16,8 +16,8 @@ FILE *openDevice();
 void printStruct(aisP *p){
     //printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n", 
     //p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding);
-    printf("VesselName: %s\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f (%i) head: %d cog: %.2f\n- COG: %.2f\n\n",\
-            p->vesselName, p->msgType, p->MMSI, p->heading, p->sog, p->MMSI, p->heading, p->cog, p->cog);
+    printf("VesselName: %s\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f\n- COG: %.2f\n\n",\
+            p->vesselName, p->msgType, p->MMSI, p->heading, p->sog, p->cog);
 
 }
 
@@ -25,7 +25,7 @@ int main(void){
     aisP aisPacket;
     char *line = (char *) malloc(sizeof(char) * MAXLEN);
     size_t len = 0;
-    char prevVesselName[40] = "Thisisjustaplaceholder";
+    unsigned int prevVessel = 123456789;
     
     FILE *fp = openDevice();
     while(1){
@@ -41,7 +41,7 @@ int main(void){
        //get true heading
        size_t start = 124;
        size_t end = 132;
-       char *subStr2 = (char *) malloc(sizeof(char) * (end - start));
+       char *subStr2 = malloc((end - start) + 1 * sizeof(char));
        retSubstring(aisPacket.binaryPayload, start, end, subStr2);
        aisPacket.heading = returnUIntFromBin(subStr2);
        //free(subStr2);
@@ -49,7 +49,7 @@ int main(void){
        //get binary payload for MMSI at offset 8-37, and convert to decimal
        start = 8;
        end = 37;
-       char *subStr = (char *) malloc(sizeof(char) * (end - start));
+       char *subStr = malloc((end - start) + 1 * sizeof(char));
        retSubstring(aisPacket.binaryPayload, start, end, subStr);
        aisPacket.MMSI = returnUIntFromBin(subStr);
        //free(subStr);
@@ -57,7 +57,7 @@ int main(void){
        //get message type
        start = 0;
        end = 5;
-       char *subStr3 = (char *) malloc(sizeof(char) * (end - start));
+       char *subStr3 = malloc((end - start) + 1 * sizeof(char));
        retSubstring(aisPacket.binaryPayload, start, end, subStr3);
        aisPacket.msgType= returnUIntFromBin(subStr3);
        //free(subStr3);
@@ -67,18 +67,21 @@ int main(void){
            //get speed over ground (std class b  CS position report
            start = 46;
            end = 55;
-           char *subStr4 = (char *) malloc(sizeof(char) * (end - start));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr4);
-           aisPacket.sog= returnU1FloatFromBin(subStr4);
-           //free(subStr4);
+           char *subStr8 = malloc((end - start) + 1 * sizeof(char));
+           retSubstring(aisPacket.binaryPayload, start, end, subStr8);
+           aisPacket.sog= returnU1FloatFromBin(subStr8);
+           //free(subStr8);
            
            //get cog class b
-           size_t start = 112;
-           size_t end = 123;
-           char *subStr5 = (char *) malloc(sizeof(char) * (end - start));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr5);
-           aisPacket.cog= COGtmp_returnU1FloatFromBin(subStr5);
+           //size_t start = 112;
+           //size_t end = 123;
+           // printf("\ts malloc5\n");
+           //char *subStr5 = malloc((end - start) + 1 * sizeof(char));
+           //retSubstring(aisPacket.binaryPayload, start, end, subStr5);
+           // printf("\te malloc5: %s\n", subStr5);
+           //aisPacket.cog= COGtmp_returnU1FloatFromBin(subStr5);
            //free(subStr5);
+           //
        }else if(aisPacket.msgType == 1\
                || aisPacket.msgType == 2\
                || aisPacket.msgType == 3\
@@ -86,13 +89,13 @@ int main(void){
            //get speed over ground (std class b  CS position report
            start = 50;
            end = 59;
-           char *subStr4 = (char *) malloc(sizeof(char) * (end - start));
+           char *subStr4 = malloc((end - start) + 1 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr4);
            aisPacket.sog= returnU1FloatFromBin(subStr4);
            //free(subStr4);
 
        }else{
-           aisPacket.sog = 0.66666;
+           
        }
 
        //addendum to protocol for ais B transponders, integrate later to add to struct
@@ -100,7 +103,7 @@ int main(void){
            //get ship name and more from type 24 message, correlation through MMSI
            start = 40;
            end = 159;
-           char *subStr6 = (char *) malloc(sizeof(char) * (end - start));
+           char *subStr6 = malloc((end - start) + 1 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr6);
            returnAsciiFrom6bits(subStr6, &aisPacket);
            //free(subStr6);
@@ -114,11 +117,14 @@ int main(void){
            || aisPacket.msgType == 912\
            || aisPacket.msgType == 913\
          ){
-           if(strcmp(aisPacket.vesselName, prevVesselName) != 0)
-            printStruct(&aisPacket);
+           if(aisPacket.MMSI != prevVessel){
+                printStruct(&aisPacket);
+                prevVessel = aisPacket.MMSI;
+           }else{
+                printf("Ignoring ais packet, previous vessel was already %i\n", prevVessel);
+           }
        }
        
-       memcpy(prevVesselName, aisPacket.vesselName, sizeof(aisPacket.vesselName));
 
     }
     free(line);
