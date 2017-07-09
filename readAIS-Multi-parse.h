@@ -15,7 +15,7 @@ typedef struct aisPacket{
     float sog;
     size_t heading;
     float cog;
-    char vesselName[400];
+    char vesselName[40];
     unsigned int MMSI;
 }aisP;
 
