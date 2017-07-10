@@ -19,6 +19,7 @@ typedef struct aisPacket{
     unsigned int MMSI;
     float lon;
     float lat;
+    unsigned int ts;
 }aisP;
 
 void printErr(char *msg);
