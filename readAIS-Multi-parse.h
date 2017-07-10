@@ -30,6 +30,7 @@ void returnBinaryPayload(char *payl, aisP *aisPacket);
 unsigned int returnUIntFromBin(char *bin);
 float returnU1FloatFromBin(char *bin);
 float COGtmp_returnU1FloatFromBin(char *bin);
+float LONtmp_returnU1FloatFromBin(char *bin);
 
 int retSubstring(char *myStr, size_t start, size_t end, char *subStr);
 void returnAsciiFrom6bits(char *binString, aisP *aisPacket);

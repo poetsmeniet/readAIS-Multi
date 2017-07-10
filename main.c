@@ -16,8 +16,8 @@ FILE *openDevice();
 void printStruct(aisP *p){
     //printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n", 
     //p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding);
-    printf("\nVesselName: %s\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f\n- COG: %.2f\n",\
-            p->vesselName, p->msgType, p->MMSI, p->heading, p->sog, p->cog);
+    printf("\nVesselName: %s\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f\n- COG: %.2f\n- Lon: %.6f\n- Lat: %.6f\n",\
+            p->vesselName, p->msgType, p->MMSI, p->heading, p->sog, p->cog, p->lon, p->lat);
 
 }
 
@@ -61,8 +61,10 @@ int main(void){
        retSubstring(aisPacket.binaryPayload, start, end, subStr);
        aisPacket.msgType= returnUIntFromBin(subStr);
        free(subStr);
-       //printf("\t msgType: %d\n", aisPacket.msgType);
-
+        //B
+        //lon: 57-84
+        //lat: 85-111
+        //
        if(aisPacket.msgType == 18\
                || aisPacket.msgType == 19){
            //get speed over ground (std class b  CS position report
@@ -74,11 +76,26 @@ int main(void){
            free(subStr);
            
            //get cog class b
-           size_t start = 112;
-           size_t end = 123;
+           start = 112;
+           end = 123;
            subStr = malloc((end - start) + 2 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.cog = COGtmp_returnU1FloatFromBin(subStr);
+           free(subStr);
+           
+           //get lon
+           start = 57;
+           end = 84;
+           subStr = malloc((end - start) + 3 * sizeof(char));
+           retSubstring(aisPacket.binaryPayload, start, end, subStr);
+           aisPacket.lon = LONtmp_returnU1FloatFromBin(subStr);
+           free(subStr);
+           //get atl
+           start = 85;
+           end = 111;
+           subStr = malloc((end - start) + 2 * sizeof(char));
+           retSubstring(aisPacket.binaryPayload, start, end, subStr);
+           aisPacket.lat = LONtmp_returnU1FloatFromBin(subStr);
            free(subStr);
            
        }else if(aisPacket.msgType == 1\
@@ -100,6 +117,24 @@ int main(void){
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.cog = COGtmp_returnU1FloatFromBin(subStr);
            free(subStr);
+
+            //A
+            //lon: 61-88
+            //lat: 89-115
+           //get lon
+           start = 61;
+           end = 88;
+           subStr = malloc((end - start) + 2 * sizeof(char));
+           retSubstring(aisPacket.binaryPayload, start, end, subStr);
+           aisPacket.lon = LONtmp_returnU1FloatFromBin(subStr);
+           free(subStr);
+           //get atl
+           start = 89;
+           end = 115;
+           subStr = malloc((end - start) + 2 * sizeof(char));
+           retSubstring(aisPacket.binaryPayload, start, end, subStr);
+           aisPacket.lat = LONtmp_returnU1FloatFromBin(subStr);
+           free(subStr);
        }
            
        //addendum to protocol for ais B transponders, integrate later to add to struct
@@ -116,7 +151,7 @@ int main(void){
            aisPacket.cog = 0.0;
        }
 
-       if(aisPacket.msgType == 9118\
+       if(aisPacket.msgType == 18\
            || aisPacket.msgType == 9119\
            || aisPacket.msgType == 915\
            || aisPacket.msgType == 24\

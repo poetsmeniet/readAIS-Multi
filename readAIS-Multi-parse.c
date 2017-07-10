@@ -119,6 +119,22 @@ float COGtmp_returnU1FloatFromBin(char *bin){
     return floatU1;
 }
 
+float LONtmp_returnU1FloatFromBin(char *bin){
+    int sz = strlen(bin);
+    int cnt = 0;
+    int cntRev = sz - 1;
+    float floatU1 = 0.0;
+    for(cnt = 0; cnt < sz; cnt++){
+        if(bin[cnt] == '1'){
+            floatU1 += power(2, cntRev);
+        }
+        cntRev--;
+    }
+    //printf("LON: floatU1 = %f, bin: %s\n", floatU1, bin);
+    floatU1 /= 600000.0;
+    return floatU1;
+}
+
 void ret6bit(char myChar, char *sixbits){
     int i;
     size_t bit = 0;
