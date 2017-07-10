@@ -124,12 +124,12 @@ int main(void){
        }
 
        if(aisPacket.msgType == 18\
-           || aisPacket.msgType == 19\
+           || aisPacket.msgType == 9119\
            || aisPacket.msgType == 915\
            || aisPacket.msgType == 24\
-           || aisPacket.msgType == 1\
-           || aisPacket.msgType == 2\
-           || aisPacket.msgType == 3\
+           || aisPacket.msgType == 911\
+           || aisPacket.msgType == 912\
+           || aisPacket.msgType == 913\
          ){
            if(aisPacket.MMSI != prevVessel){
                 printStruct(&aisPacket);
@@ -139,7 +139,6 @@ int main(void){
                 printf(".");
            }
        }
-       
 
     }
     free(line);

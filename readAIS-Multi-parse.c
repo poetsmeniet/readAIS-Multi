@@ -150,8 +150,6 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
 
     size_t paylSz = strlen(payl);
     
-    //printf("****debug: strlen(payl): %d (%s)\n", paylSz, payl);
-    //printf("calced sz of concatstr: %d\n", paylSz  * 6 * sizeof(char) + 1);
     size_t testCnt = 0;
 
 
@@ -165,38 +163,25 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
             res1 -= 8;
 
         //Return 6 bit ascii value
-        //char sixbits[6];
         char *sixbits = malloc(6 * sizeof(char));
         ret6bit(res1, sixbits);
 
-        //printf("- after ret6bit, size of sixbits = %d (%s)", sizeof(sixbits), sixbits);
-
         //add to conactenated string
-        //printf("- 1: concatstr has length: %d", strlen(concatstr));
         strncat(concatstr, sixbits, 6 * sizeof(char));
-        //printf(", after strncat is has length: %d\n", strlen(concatstr));
-        //printf("\t- added %d to concatstr\n", 6); 
         testCnt+=6;
         
         free(sixbits);
         i++;
     }
-    //printf("\t- Totaling at %d chars, i cnter: %d\n", testCnt, i);
-    //printf("\t- Now adding nullterm at position %d\n", paylSz  * 6 * sizeof(char));
     concatstr[paylSz  * 6 * sizeof(char)] = '\0';
-
-    //printf("\t- And copying string to struct with size: %d\n", paylSz  * 6 * sizeof(char));
-    //strncpy(aisPacket->binaryPayload, concatstr, strlen(concatstr) + 1);
     strncpy(aisPacket->binaryPayload, concatstr, paylSz  * 6 * sizeof(char));
-    
-    //concatstr = '\0';
     free(concatstr); //this seems to be conflicting with out of scope de-alloc?
 }
 
 //return ascii value of six bit nibble strings
 void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
     size_t sz = strlen(binString);
-    char *vesselName = malloc(sizeof(char) * sz + 1);
+    char *vesselName = malloc(((sz / 6) + 1) * sizeof(char));
 
     //Sanity check, vessel names not allways reliable
     if(sz % 6 != 0){
@@ -219,7 +204,7 @@ void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
                 j++;
             }
         }
-        vesselName[sz] = '\0';
+        vesselName[sz / 6] = '\0';
         memcpy(aisPacket->vesselName, vesselName, sizeof(aisPacket->vesselName));
     }
     free(vesselName);
