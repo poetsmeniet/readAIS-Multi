@@ -42,7 +42,7 @@ void parseMsg(char *line, aisP *aisPacket){
     size_t tokNr = 1;
     while ((token = strsep(&str, ","))){ 
         if(tokNr == 1)
-            strncpy(aisPacket->packetType, token, sizeof(aisPacket->packetType));
+            memcpy(aisPacket->packetType, token, sizeof(aisPacket->packetType));
         if(tokNr == 2)
             aisPacket->fragCnt = atoi(token);
         if(tokNr == 3)
@@ -52,7 +52,7 @@ void parseMsg(char *line, aisP *aisPacket){
         if(tokNr == 5)
             aisPacket->chanCode = *token;
         if(tokNr == 6)
-            strncpy(aisPacket->payload, token, sizeof(aisPacket->payload));
+            memcpy(aisPacket->payload, token, sizeof(aisPacket->payload));
         if(tokNr == 7)
             aisPacket->padding = atoi(token);
         tokNr++;
@@ -152,7 +152,6 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
     
     size_t testCnt = 0;
 
-
     char *concatstr = (char *) malloc(paylSz  * 6 * sizeof(char) + 1);
     concatstr[0] = '\0';
     
@@ -174,7 +173,7 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
         i++;
     }
     concatstr[paylSz  * 6 * sizeof(char)] = '\0';
-    strncpy(aisPacket->binaryPayload, concatstr, paylSz  * 6 * sizeof(char));
+    memcpy(aisPacket->binaryPayload, concatstr, paylSz  * 6 * sizeof(char));
     free(concatstr); //this seems to be conflicting with out of scope de-alloc?
 }
 
