@@ -136,7 +136,6 @@ int retSubstring(char *myStr, size_t start, size_t end, char *subStr){
     if(end > start){
         char *s = &myStr[start];
         char *e = &myStr[end + 1];
-
         memcpy(subStr, s, e - s);
         subStr[end - start + 1] = '\0';
         return 0;
@@ -168,10 +167,11 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
 
         i++;
     }
-
+    concatstr[paylSz  * 7 * sizeof(char) + 1] = '\0';
     strncpy(aisPacket->binaryPayload, concatstr, strlen(concatstr) + 1);
-
-    //free(concatstr); //this seems to be conflicting with out of scope de-alloc?
+    
+    concatstr = '\0';
+    free(concatstr); //this seems to be conflicting with out of scope de-alloc?
  
 }
 
@@ -201,6 +201,7 @@ void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
                 j++;
             }
         }
+        vesselName[sz] = '\0';
         memcpy(aisPacket->vesselName, vesselName, sizeof(aisPacket->vesselName));
     }
     free(vesselName);
