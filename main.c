@@ -44,8 +44,7 @@ int main(void){
        char *subStr = malloc((end - start) + 2 * sizeof(char));
        retSubstring(aisPacket.binaryPayload, start, end, subStr);
        aisPacket.heading = returnUIntFromBin(subStr);
-       if(subStr != NULL)
-           free(subStr);
+       free(subStr);
        
        //get binary payload for MMSI at offset 8-37, and convert to decimal
        start = 8;
@@ -53,8 +52,7 @@ int main(void){
        subStr = malloc((end - start) + 2 * sizeof(char));
        retSubstring(aisPacket.binaryPayload, start, end, subStr);
        aisPacket.MMSI = returnUIntFromBin(subStr);
-       if(subStr != NULL)
-           free(subStr);
+       free(subStr);
 
        //get message type
        start = 0;
@@ -62,8 +60,7 @@ int main(void){
        subStr = malloc((end - start) + 2 * sizeof(char));
        retSubstring(aisPacket.binaryPayload, start, end, subStr);
        aisPacket.msgType= returnUIntFromBin(subStr);
-       if(subStr != NULL)
-            free(subStr);
+       free(subStr);
        //printf("\t msgType: %d\n", aisPacket.msgType);
 
        if(aisPacket.msgType == 18\
@@ -74,8 +71,7 @@ int main(void){
            subStr = malloc((end - start) + 2 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.sog= returnU1FloatFromBin(subStr);
-           if(subStr != NULL)
-               free(subStr);
+           free(subStr);
            
            //get cog class b
            size_t start = 112;
@@ -95,8 +91,7 @@ int main(void){
            subStr = malloc((end - start) + 2 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.sog= returnU1FloatFromBin(subStr);
-           if(subStr != NULL)
-               free(subStr);
+           free(subStr);
 
            //get cog class a
            size_t start = 116;
@@ -104,9 +99,7 @@ int main(void){
            subStr = malloc((end - start) + 2 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.cog = COGtmp_returnU1FloatFromBin(subStr);
-           if(subStr != NULL)
-               free(subStr);
-           //
+           free(subStr);
        }
            
        //addendum to protocol for ais B transponders, integrate later to add to struct
@@ -117,8 +110,7 @@ int main(void){
            subStr = malloc((end - start) + 2 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
            returnAsciiFrom6bits(subStr, &aisPacket);
-           if(subStr != NULL)
-               free(subStr);
+           free(subStr);
 
            //get cog class a, msgtype 24 (does not contain this info)
            aisPacket.cog = 0.0;
