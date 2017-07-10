@@ -83,7 +83,6 @@ int main(void){
            subStr = malloc((end - start) + 2 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.cog = COGtmp_returnU1FloatFromBin(subStr);
-           subStr = '\0';
            free(subStr);
            
        }else if(aisPacket.msgType == 1\
@@ -118,12 +117,14 @@ int main(void){
            subStr = malloc((end - start) + 2 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
            returnAsciiFrom6bits(subStr, &aisPacket);
-           subStr = '\0';
            if(subStr != NULL)
                free(subStr);
+
+           //get cog class a, msgtype 24 (does not contain this info)
+           aisPacket.cog = 0.0;
        }
 
-       if(aisPacket.msgType == 18\
+       if(aisPacket.msgType == 9118\
            || aisPacket.msgType == 9119\
            || aisPacket.msgType == 915\
            || aisPacket.msgType == 24\
