@@ -19,7 +19,7 @@ void printStruct(aisP *p){
 
 int main(void){
     aisP aisPacket;
-    char *line = (char *) malloc(sizeof(char) * MAXLEN);
+    char *line = malloc(sizeof(char) * MAXLEN);
     size_t len = 0;
     unsigned int prevVessel = 123456789;
     

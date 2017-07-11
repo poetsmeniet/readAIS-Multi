@@ -170,7 +170,7 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
 
     size_t paylSz = strlen(payl);
     size_t testCnt = 0;
-    char *bitString = (char *) malloc(paylSz  * 6 * sizeof(char) + 1);
+    char *bitString = malloc(paylSz  * 6 * sizeof(char) + 1);
     bitString[0] = '\0';
     
     while(payl[i] != '\0'){
