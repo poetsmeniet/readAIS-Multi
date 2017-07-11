@@ -39,6 +39,15 @@ int main(void){
        returnBinaryPayload(aisPacket.payload, &aisPacket);
 
        // *** this needs to be generalized, now only coding for type 18 (class B)
+       // 1. Rewrite all function calls to assign values in function call
+       // 2. Move subString calls to applicable functions
+       // 3. Type 24 msgs: call collect data function
+       // variables:
+       // - msgType (determines offset diffs)
+       // - start, end
+       // - function to call
+       // - aisPacket item
+       //
        //get true heading
        size_t start = 124;
        size_t end = 132;
