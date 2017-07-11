@@ -10,11 +10,15 @@
 
 FILE *openDevice();
 
-void printStruct(aisP *p){
+void printStructVerbose(aisP *p){
     printf("\nVesselName: %s\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f\n- COG: %.2f\n- Lon: %.6f\n- Lat: %.6f\n",\
             p->vesselName, p->msgType, p->MMSI, p->heading, p->sog, p->cog, p->lon, p->lat);
-    printf("- googMapLink: https://maps.google.com/maps?f=q&q=%.6f,%.6f&z=16\n", p->lat, p->lon);
+    printf("- googMapLink: https://maps.google.com/maps?f=q&q=%.6f,%.6f&z=16\n", p->lon, p->lat);
+}
 
+void printStruct(aisP *p){
+    printf("(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\tVesselName: %s\n",
+        p->msgType, p->MMSI, p->sog, p->cog, p->lat, p->lon, p->vesselName);
 }
 
 int main(void){
@@ -159,6 +163,7 @@ int main(void){
            aisPacket.cog = 0.0;
            
            //type 24, class B does not have lat/lon.. overwriting with 0 fr debug prints
+           aisPacket.sog = 0;
            aisPacket.lon = 0;
            aisPacket.lat = 0;
        }
@@ -176,7 +181,7 @@ int main(void){
                 prevVessel = aisPacket.MMSI;
            }else{
                 //printf("Ignoring ais packet, previous vessel was already %i\n", prevVessel);
-                printf(".");
+                //printf(".");
            }
        }
 
