@@ -36,7 +36,7 @@ struct sixbitAsciiTable sixbitAscii[64] = {
 };
 
 void parseMsg(char *line, aisP *aisPacket){
-    //Extract fields and store in struct
+    //Extract fields of ais packet and store in struct for later decoding
     char *token, *str, *tofree;
     tofree = str = strdup(line);  
     size_t tokNr = 1;
@@ -119,22 +119,25 @@ float COGtmp_returnU1FloatFromBin(char *bin){
     return floatU1;
 }
 
-float LONtmp_returnU1FloatFromBin(char *bin){
-    int sz = strlen(bin);
-    int cnt = 0;
-    int cntRev = sz - 1;
-    float floatU1 = 0.0;
-    for(cnt = 0; cnt < sz; cnt++){
-        if(bin[cnt] == '1'){
-            floatU1 += power(2, cntRev);
-        }
-        cntRev--;
-    }
-    //printf("LON: floatU1 = %f, bin: %s\n", floatU1, bin);
-    floatU1 /= 600000.0;
-    return floatU1;
+void returnLatLon(char *lonBin, char *latBin, aisP *aisPacket){
+    int lon = returnUIntFromBin(lonBin);
+    int valLon = lon & 0x08000000; //determine if result of this oper is positive or 0
+    //printf("Doing bitwise AND operation between Lon (minutes/10000) and '%d' for Lon: %d\n", 0x08000000, valLon);
+
+    int lat = returnUIntFromBin(latBin);
+    int valLat = lat & 0x04000000;
+    //printf("Doing bitwise AND operation between Lat (minutes/10000) and '%d' for Lat: %d\n\n", 0x04000000, valLat);
+
+    if(valLon)
+        lon |= 0xf0000000;//printf("- LON: applied bitwise OR with value: %i\n", 0xf0000000);
+    if(valLat)
+        lat |= 0xf8000000;//printf("valLat: %d :: Lat(min): %d, \t\tdegr: %f\n",valLat , lat, lat / 600000.0);
+        
+    aisPacket->lon = lon / 600000.0;
+    aisPacket->lat = lat / 600000.0;
 }
 
+//Returns an array of bits (6) of char
 void ret6bit(char myChar, char *sixbits){
     int i;
     size_t bit = 0;
@@ -161,15 +164,14 @@ int retSubstring(char *myStr, size_t start, size_t end, char *subStr){
     }
 }
 
+//Returns the binary payload, ie information regarding sending station. De-armoring and supplies bitstring
 void returnBinaryPayload(char *payl, aisP *aisPacket){
     int i = 0;
 
     size_t paylSz = strlen(payl);
-    
     size_t testCnt = 0;
-
-    char *concatstr = (char *) malloc(paylSz  * 6 * sizeof(char) + 1);
-    concatstr[0] = '\0';
+    char *bitString = (char *) malloc(paylSz  * 6 * sizeof(char) + 1);
+    bitString[0] = '\0';
     
     while(payl[i] != '\0'){
         //To recover (de-armor) the six bits, subtract 48 from the ASCII character value; if the result is greater than 40 subtract 8
@@ -182,15 +184,15 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
         ret6bit(res1, sixbits);
 
         //add to conactenated string
-        strncat(concatstr, sixbits, 6 * sizeof(char));
+        strncat(bitString, sixbits, 6 * sizeof(char));
         testCnt+=6;
         
         free(sixbits);
         i++;
     }
-    concatstr[paylSz  * 6 * sizeof(char)] = '\0';
-    memcpy(aisPacket->binaryPayload, concatstr, paylSz  * 6 * sizeof(char));
-    free(concatstr); //this seems to be conflicting with out of scope de-alloc?
+    bitString[paylSz  * 6 * sizeof(char)] = '\0';
+    memcpy(aisPacket->binaryPayload, bitString, paylSz  * 6 * sizeof(char));
+    free(bitString); //this seems to be conflicting with out of scope de-alloc?
 }
 
 //return ascii value of six bit nibble strings

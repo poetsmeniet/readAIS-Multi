@@ -6,18 +6,14 @@
 #define DEVICE "/dev/ttyUSB0"
 
 //Read AIS-MULTI data device
-//- parse AIS B type position report
-//- parse ship name
-//
 //Protocol description: http://catb.org/gpsd/AIVDM.html#_open_source_implementations
 
 FILE *openDevice();
 
 void printStruct(aisP *p){
-    //printf("Printing current struct: (%c) %s, (%i of %i), %s - padding: %i\n", 
-    //p->chanCode, p->packetType, p->fragNr, p->fragCnt, p->payload, p->padding);
     printf("\nVesselName: %s\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f\n- COG: %.2f\n- Lon: %.6f\n- Lat: %.6f\n",\
             p->vesselName, p->msgType, p->MMSI, p->heading, p->sog, p->cog, p->lon, p->lat);
+    printf("- googMapLink: https://maps.google.com/maps?f=q&q=%.6f,%.6f&z=16\n", p->lat, p->lon);
 
 }
 
@@ -29,10 +25,11 @@ int main(void){
     
     FILE *fp = openDevice();
     while(1){
-        memcpy(aisPacket.vesselName, "Unknown\0", 8 * sizeof(char));
-        getline(&line, &len, fp);
-        //Get packet details into convenient struct
-        parseMsg(line, &aisPacket);
+       memcpy(aisPacket.vesselName, "Unknown\0", 8 * sizeof(char));
+       getline(&line, &len, fp);
+       
+       //Get packet details into convenient struct
+       parseMsg(line, &aisPacket);
     
        //Get binary payload into struct
        returnBinaryPayload(aisPacket.payload, &aisPacket);
@@ -61,12 +58,29 @@ int main(void){
        retSubstring(aisPacket.binaryPayload, start, end, subStr);
        aisPacket.msgType= returnUIntFromBin(subStr);
        free(subStr);
-        //B
-        //lon: 57-84
-        //lat: 85-111
-        //
+        
+       //B
+       //lon: 57-84
+       //lat: 85-111
+       //
        if(aisPacket.msgType == 18\
                || aisPacket.msgType == 19){
+           
+           //get lon
+           start = 57;
+           end = 84;
+           char *subStrLon = malloc((end - start) + 3 * sizeof(char));
+           retSubstring(aisPacket.binaryPayload, start, end, subStrLon);
+           //getlat 
+           start = 85;
+           end = 111;
+           char *subStrLat = malloc((end - start) + 2 * sizeof(char));
+           retSubstring(aisPacket.binaryPayload, start, end, subStrLat);
+           //set lat/lon
+           returnLatLon(subStrLon, subStrLat, &aisPacket);
+           free(subStrLon);
+           free(subStrLat);
+
            //get speed over ground (std class b  CS position report
            start = 46;
            end = 55;
@@ -83,20 +97,14 @@ int main(void){
            aisPacket.cog = COGtmp_returnU1FloatFromBin(subStr);
            free(subStr);
            
-           //get lon
-           start = 57;
-           end = 84;
+           //get timestamp
+           start = 133;
+           end = 138;
            subStr = malloc((end - start) + 3 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
-           aisPacket.lon = LONtmp_returnU1FloatFromBin(subStr);
+           aisPacket.ts = returnUIntFromBin(subStr);
            free(subStr);
-           //get atl
-           start = 85;
-           end = 111;
-           subStr = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr);
-           aisPacket.lat = LONtmp_returnU1FloatFromBin(subStr);
-           free(subStr);
+           
            
        }else if(aisPacket.msgType == 1\
                || aisPacket.msgType == 2\
@@ -118,23 +126,23 @@ int main(void){
            aisPacket.cog = COGtmp_returnU1FloatFromBin(subStr);
            free(subStr);
 
-            //A
-            //lon: 61-88
-            //lat: 89-115
+           //A
+           //lon: 61-88
+           //lat: 89-115
            //get lon
            start = 61;
            end = 88;
-           subStr = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr);
-           aisPacket.lon = LONtmp_returnU1FloatFromBin(subStr);
-           free(subStr);
-           //get atl
+           char *subStrLon = malloc((end - start) + 3 * sizeof(char));
+           retSubstring(aisPacket.binaryPayload, start, end, subStrLon);
+           //getlat 
            start = 89;
            end = 115;
-           subStr = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr);
-           aisPacket.lat = LONtmp_returnU1FloatFromBin(subStr);
-           free(subStr);
+           char *subStrLat = malloc((end - start) + 2 * sizeof(char));
+           retSubstring(aisPacket.binaryPayload, start, end, subStrLat);
+           //set lat/lon
+           returnLatLon(subStrLon, subStrLat, &aisPacket);
+           free(subStrLon);
+           free(subStrLat);
        }
            
        //addendum to protocol for ais B transponders, integrate later to add to struct
@@ -149,15 +157,19 @@ int main(void){
 
            //get cog class a, msgtype 24 (does not contain this info)
            aisPacket.cog = 0.0;
+           
+           //type 24, class B does not have lat/lon.. overwriting with 0 fr debug prints
+           aisPacket.lon = 0;
+           aisPacket.lat = 0;
        }
 
        if(aisPacket.msgType == 18\
            || aisPacket.msgType == 9119\
            || aisPacket.msgType == 915\
            || aisPacket.msgType == 24\
-           || aisPacket.msgType == 911\
-           || aisPacket.msgType == 912\
-           || aisPacket.msgType == 913\
+           || aisPacket.msgType == 1\
+           || aisPacket.msgType == 2\
+           || aisPacket.msgType == 3\
          ){
            if(aisPacket.MMSI != prevVessel){
                 printStruct(&aisPacket);

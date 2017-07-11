@@ -1,11 +1,6 @@
 #ifndef readAISMultiparse_H_
 #define readAISMultiparse_H_
 
-struct LatLon{
-    float latDeg;
-    float lonDeg;
-};
-
 typedef struct aisPacket{
     char packetType[20];
     size_t fragCnt;
@@ -36,9 +31,8 @@ void returnBinaryPayload(char *payl, aisP *aisPacket);
 unsigned int returnUIntFromBin(char *bin);
 float returnU1FloatFromBin(char *bin);
 float COGtmp_returnU1FloatFromBin(char *bin);
-float LONtmp_returnU1FloatFromBin(char *bin);
 
 int retSubstring(char *myStr, size_t start, size_t end, char *subStr);
 void returnAsciiFrom6bits(char *binString, aisP *aisPacket);
-struct LatLon returnLatLon(char *lonBin, char *latBin);
+void returnLatLon(char *lonBin, char *latBin, aisP *aisPacket);
 #endif
