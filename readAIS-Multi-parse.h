@@ -22,6 +22,19 @@ typedef struct aisPacket{
     unsigned int ts;
 }aisP;
 
+struct aisTargetLog{
+    char vesselName[40];
+    size_t msgType;
+    unsigned int MMSI;
+    size_t heading;
+    float cog;
+    float sog;
+    float lat;
+    float lon;
+    struct aisTargetLog *next;
+};
+
+
 void printErr(char *msg);
 void parseMsg(char *line, aisP *aisMsg);
 void returnBinaryPayload(char *payl, aisP *aisPacket);
