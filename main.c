@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "readAIS-Multi-parse.h"
+#include "readAIS-Multi-targetLogger.h"
 #define MAXLEN 120
 #define DEVICE "/dev/ttyUSB0"
 
