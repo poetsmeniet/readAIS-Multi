@@ -11,12 +11,6 @@
 
 FILE *openDevice();
 
-void printStructVerbose(aisP *p){
-    printf("\nVesselName: %s\n- msgType: %d\n- MMSI: %i\n- heading: %d\n- SOG: %f\n- COG: %.2f\n- Lon: %.6f\n- Lat: %.6f\n",\
-            p->vesselName, p->msgType, p->MMSI, p->heading, p->sog, p->cog, p->lon, p->lat);
-    printf("- googMapLink: https://maps.google.com/maps?f=q&q=%.6f,%.6f&z=16\n", p->lon, p->lat);
-}
-
 void printStruct(aisP *p){
     printf("(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\tVesselName: %s\n",
         p->msgType, p->MMSI, p->sog, p->cog, p->lat, p->lon, p->vesselName);
@@ -26,10 +20,9 @@ int main(void){
     aisP aisPacket;
     char *line = malloc(sizeof(char) * MAXLEN);
     size_t len = 0;
-    //unsigned int prevVessel = 123456789;
-    //size_t start = 0;
-    //size_t end = 5;
-    //char *subStr;
+
+    struct aisTargetLog *targetLog;
+    targetLog = malloc(sizeof(struct aisTargetLog)); //Stores AIS targets
     
     FILE *fp = openDevice();
     while(1){
@@ -43,7 +36,8 @@ int main(void){
         //Get binary payload into struct
         returnBinaryPayload(aisPacket.payload, &aisPacket);
 
-        if(strlen(aisPacket.binaryPayload) == 168){
+        //printf("Length is %d\n", strlen(aisPacket.binaryPayload));
+        if(strlen(aisPacket.binaryPayload) == 170){
             //Decode bitstring (binary payload0
             decodePayload(&aisPacket);
 
@@ -59,9 +53,13 @@ int main(void){
                      printStruct(&aisPacket);
                      prevVessel = aisPacket.MMSI;
                 }else{
-                     //printf("Ignoring ais packet, previous vessel was already %i\n", prevVessel);
+                     printf("Ignoring ais packet, previous vessel was already %i\n", prevVessel);
                      //printf(".");
                 }
+
+                //pass data to manage target list
+                manageTargetList(&aisPacket, targetLog);
+
             }
         }
     }

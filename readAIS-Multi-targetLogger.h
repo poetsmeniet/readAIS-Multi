@@ -1,5 +1,6 @@
-#ifndef readAISMultiparse_H_
-#define readAISMultiparse_H_
+#ifndef readAISMultiTargetLogger_H_
+#define readAISMultiTargetLogger_H_
+#include "readAIS-Multi-parse.h"
 
 struct aisTargetLog{
     char vesselName[40];
@@ -13,5 +14,6 @@ struct aisTargetLog{
     struct aisTargetLog *next;
 };
 
+void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog);
 
 #endif
