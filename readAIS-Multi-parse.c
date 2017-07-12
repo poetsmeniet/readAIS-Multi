@@ -205,7 +205,6 @@ void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
         printf("Binary string is not a multiple of 6, so probably invalid\n");
         memcpy(vesselName, "_", sz);
     }else{
-
         size_t i = 0;
         size_t j = 0;
         size_t k = 0;
@@ -214,6 +213,7 @@ void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
         for(i = 0; i < sz; i++){
             nibble[j] = binString[i];
             if(j == 5){
+                nibble[6] = '\0';
                 vesselName[k] = sixbitAscii[returnUIntFromBin(nibble)].ascii;
                 j = 0;
                 k++;
@@ -221,6 +221,7 @@ void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
                 j++;
             }
         }
+        free(nibble);
         vesselName[sz / 6] = '\0';
         memcpy(aisPacket->vesselName, vesselName, sizeof(aisPacket->vesselName));
     }

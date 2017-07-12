@@ -26,6 +26,9 @@ int main(void){
     char *line = malloc(sizeof(char) * MAXLEN);
     size_t len = 0;
     unsigned int prevVessel = 123456789;
+    size_t start = 0;
+    size_t end = 5;
+    char *subStr;
     
     FILE *fp = openDevice();
     while(1){
@@ -48,22 +51,6 @@ int main(void){
        // - function to call
        // - aisPacket item
        //
-       //get true heading
-       size_t start = 124;
-       size_t end = 132;
-       char *subStr = malloc((end - start) + 2 * sizeof(char));
-       retSubstring(aisPacket.binaryPayload, start, end, subStr);
-       aisPacket.heading = returnUIntFromBin(subStr);
-       free(subStr);
-       
-       //get binary payload for MMSI at offset 8-37, and convert to decimal
-       start = 8;
-       end = 37;
-       subStr = malloc((end - start) + 2 * sizeof(char));
-       retSubstring(aisPacket.binaryPayload, start, end, subStr);
-       aisPacket.MMSI = returnUIntFromBin(subStr);
-       free(subStr);
-
        //get message type
        start = 0;
        end = 5;
@@ -72,6 +59,22 @@ int main(void){
        aisPacket.msgType= returnUIntFromBin(subStr);
        free(subStr);
         
+       //get true heading
+       start = 124;
+       end = 132;
+       subStr = malloc((end - start) + 2 * sizeof(char));
+       retSubstring(aisPacket.binaryPayload, start, end, subStr);
+       aisPacket.heading = returnUIntFromBin(subStr);
+       free(subStr);
+       
+       //MMSI at offset 8-37, and convert to decimal
+       start = 8;
+       end = 37;
+       subStr = malloc((end - start) + 2 * sizeof(char));
+       retSubstring(aisPacket.binaryPayload, start, end, subStr);
+       aisPacket.MMSI = returnUIntFromBin(subStr);
+       free(subStr);
+
        //B
        //lon: 57-84
        //lat: 85-111
@@ -132,8 +135,8 @@ int main(void){
            free(subStr);
 
            //get cog class a
-           size_t start = 116;
-           size_t end = 127;
+           start = 116;
+           end = 127;
            subStr = malloc((end - start) + 2 * sizeof(char));
            retSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.cog = COGtmp_returnU1FloatFromBin(subStr);
