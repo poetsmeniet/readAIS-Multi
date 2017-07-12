@@ -72,8 +72,22 @@ unsigned int power(unsigned int base, unsigned int exp){
     }
     return result;
 }
+void assignUIntFromBin(char *bin, unsigned int *target){
+    int sz = strlen(bin);
 
-unsigned int returnUIntFromBin(char *bin){
+    int cnt = 0;
+    int cntRev = sz - 1;
+    unsigned int decimal = 0;
+    for(cnt = 0; cnt < sz; cnt++){
+        if(bin[cnt] == '1'){
+            decimal += power(2, cntRev);
+        }
+        cntRev--;
+    }
+    *target = decimal;
+}
+
+void assignIntFromBin(char *bin, int *target){
     int sz = strlen(bin);
 
     int cnt = 0;
@@ -85,7 +99,7 @@ unsigned int returnUIntFromBin(char *bin){
         }
         cntRev--;
     }
-    return decimal;
+    *target = decimal;
 }
 
 //return unsigned float from binary string, 1 decimal place
@@ -119,12 +133,15 @@ float COGtmp_returnU1FloatFromBin(char *bin){
     return floatU1;
 }
 
-void returnLatLon(char *lonBin, char *latBin, aisP *aisPacket){
-    int lon = returnUIntFromBin(lonBin);
+void assignLatLon(char *lonBin, char *latBin, aisP *aisPacket){
+    //printf("debug: lonBin: '%s' latBin: %s\n", lonBin, latBin);
+    int lon;
+    assignIntFromBin(lonBin, &lon);
     int valLon = lon & 0x08000000; //determine if result of this oper is positive or 0
     //printf("Doing bitwise AND operation between Lon (minutes/10000) and '%d' for Lon: %d\n", 0x08000000, valLon);
 
-    int lat = returnUIntFromBin(latBin);
+    int lat;
+    assignIntFromBin(latBin, &lat);
     int valLat = lat & 0x04000000;
     //printf("Doing bitwise AND operation between Lat (minutes/10000) and '%d' for Lat: %d\n\n", 0x04000000, valLat);
 
@@ -151,7 +168,7 @@ void ret6bit(char myChar, char *sixbits){
 }
 
 //Returns substring using given index
-int retSubstring(char *myStr, size_t start, size_t end, char *subStr){
+int assignSubstring(char *myStr, size_t start, size_t end, char *subStr){
     if(end > start){
         char *s = &myStr[start];
         char *e = &myStr[end + 1];
@@ -214,7 +231,9 @@ void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
             nibble[j] = binString[i];
             if(j == 5){
                 nibble[6] = '\0';
-                vesselName[k] = sixbitAscii[returnUIntFromBin(nibble)].ascii;
+                unsigned int tmp;
+                assignUIntFromBin(nibble, &tmp);
+                vesselName[k] = sixbitAscii[tmp].ascii;
                 j = 0;
                 k++;
             }else{

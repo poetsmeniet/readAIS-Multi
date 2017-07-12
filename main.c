@@ -55,24 +55,24 @@ int main(void){
        start = 0;
        end = 5;
        subStr = malloc((end - start) + 2 * sizeof(char));
-       retSubstring(aisPacket.binaryPayload, start, end, subStr);
-       aisPacket.msgType= returnUIntFromBin(subStr);
+       assignSubstring(aisPacket.binaryPayload, start, end, subStr);
+       assignUIntFromBin(subStr, &aisPacket.msgType);
        free(subStr);
         
-       //get true heading
+       //get heading
        start = 124;
        end = 132;
        subStr = malloc((end - start) + 2 * sizeof(char));
-       retSubstring(aisPacket.binaryPayload, start, end, subStr);
-       aisPacket.heading = returnUIntFromBin(subStr);
+       assignSubstring(aisPacket.binaryPayload, start, end, subStr);
+       assignUIntFromBin(subStr, &aisPacket.heading);
        free(subStr);
        
        //MMSI at offset 8-37, and convert to decimal
        start = 8;
        end = 37;
        subStr = malloc((end - start) + 2 * sizeof(char));
-       retSubstring(aisPacket.binaryPayload, start, end, subStr);
-       aisPacket.MMSI = returnUIntFromBin(subStr);
+       assignSubstring(aisPacket.binaryPayload, start, end, subStr);
+       assignUIntFromBin(subStr, &aisPacket.MMSI);
        free(subStr);
 
        //B
@@ -86,14 +86,14 @@ int main(void){
            start = 57;
            end = 84;
            char *subStrLon = malloc((end - start) + 3 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStrLon);
-           //getlat 
+           assignSubstring(aisPacket.binaryPayload, start, end, subStrLon);
+           //get lat 
            start = 85;
            end = 111;
            char *subStrLat = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStrLat);
+           assignSubstring(aisPacket.binaryPayload, start, end, subStrLat);
            //set lat/lon
-           returnLatLon(subStrLon, subStrLat, &aisPacket);
+           assignLatLon(subStrLon, subStrLat, &aisPacket);
            free(subStrLon);
            free(subStrLat);
 
@@ -101,7 +101,7 @@ int main(void){
            start = 46;
            end = 55;
            subStr = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr);
+           assignSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.sog= returnU1FloatFromBin(subStr);
            free(subStr);
            
@@ -109,7 +109,7 @@ int main(void){
            start = 112;
            end = 123;
            subStr = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr);
+           assignSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.cog = COGtmp_returnU1FloatFromBin(subStr);
            free(subStr);
            
@@ -117,8 +117,8 @@ int main(void){
            start = 133;
            end = 138;
            subStr = malloc((end - start) + 3 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr);
-           aisPacket.ts = returnUIntFromBin(subStr);
+           assignSubstring(aisPacket.binaryPayload, start, end, subStr);
+           assignUIntFromBin(subStr, &aisPacket.ts);
            free(subStr);
            
            
@@ -130,7 +130,7 @@ int main(void){
            start = 50;
            end = 59;
            subStr = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr);
+           assignSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.sog= returnU1FloatFromBin(subStr);
            free(subStr);
 
@@ -138,7 +138,7 @@ int main(void){
            start = 116;
            end = 127;
            subStr = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr);
+           assignSubstring(aisPacket.binaryPayload, start, end, subStr);
            aisPacket.cog = COGtmp_returnU1FloatFromBin(subStr);
            free(subStr);
 
@@ -149,14 +149,14 @@ int main(void){
            start = 61;
            end = 88;
            char *subStrLon = malloc((end - start) + 3 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStrLon);
+           assignSubstring(aisPacket.binaryPayload, start, end, subStrLon);
            //getlat 
            start = 89;
            end = 115;
            char *subStrLat = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStrLat);
+           assignSubstring(aisPacket.binaryPayload, start, end, subStrLat);
            //set lat/lon
-           returnLatLon(subStrLon, subStrLat, &aisPacket);
+           assignLatLon(subStrLon, subStrLat, &aisPacket);
            free(subStrLon);
            free(subStrLat);
        }
@@ -167,7 +167,7 @@ int main(void){
            start = 40;
            end = 159;
            subStr = malloc((end - start) + 2 * sizeof(char));
-           retSubstring(aisPacket.binaryPayload, start, end, subStr);
+           assignSubstring(aisPacket.binaryPayload, start, end, subStr);
            returnAsciiFrom6bits(subStr, &aisPacket);
            free(subStr);
 

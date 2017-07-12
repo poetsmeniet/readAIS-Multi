@@ -28,11 +28,11 @@ void parseMsg(char *line, aisP *aisMsg);
 
 void returnBinaryPayload(char *payl, aisP *aisPacket);
 
-unsigned int returnUIntFromBin(char *bin);
+void assignUIntFromBin(char *bin, unsigned int *target);
 float returnU1FloatFromBin(char *bin);
 float COGtmp_returnU1FloatFromBin(char *bin);
 
-int retSubstring(char *myStr, size_t start, size_t end, char *subStr);
+int assignSubstring(char *myStr, size_t start, size_t end, char *subStr);
 void returnAsciiFrom6bits(char *binString, aisP *aisPacket);
-void returnLatLon(char *lonBin, char *latBin, aisP *aisPacket);
+void assignLatLon(char *lonBin, char *latBin, aisP *aisPacket);
 #endif
