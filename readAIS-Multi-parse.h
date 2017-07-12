@@ -23,16 +23,14 @@ typedef struct aisPacket{
 }aisP;
 
 void printErr(char *msg);
-
 void parseMsg(char *line, aisP *aisMsg);
-
 void returnBinaryPayload(char *payl, aisP *aisPacket);
-
 void assignUIntFromBin(char *bin, unsigned int *target);
 float returnU1FloatFromBin(char *bin);
 float COGtmp_returnU1FloatFromBin(char *bin);
-
 int assignSubstring(char *myStr, size_t start, size_t end, char *subStr);
 void returnAsciiFrom6bits(char *binString, aisP *aisPacket);
 void assignLatLon(char *lonBin, char *latBin, aisP *aisPacket);
+void decodePayload(aisP * aisPacket);
+
 #endif
