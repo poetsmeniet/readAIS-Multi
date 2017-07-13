@@ -5,7 +5,7 @@
 #include "readAIS-Multi-parse.h"
 
 void printTargetList(struct aisTargetLog *targetLog){
-    struct aisTargetLog *alist = targetLog;
+    atl *alist = targetLog;
     printf("\n");
     while(alist->next != NULL){
         printf("-(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\tVesselName: %s\n",\
@@ -15,7 +15,7 @@ void printTargetList(struct aisTargetLog *targetLog){
 }
 
 void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket){
-    struct aisTargetLog *pushList = targetLog;
+    atl *pushList = targetLog;
     while(pushList->next != NULL){
         pushList = pushList->next;
     }
@@ -30,11 +30,10 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket){
     pushList->lat = aisPacket->lat;
     pushList->lon = aisPacket->lon;
     pushList->next->next = NULL;
-    
 }
 
 _Bool isNewTarget(atl *targetLog, aisP * aisPacket){
-    struct aisTargetLog *alist = targetLog;
+    atl *alist = targetLog;
     while(alist->next != NULL){
         if(alist->MMSI == aisPacket->MMSI){
             return 0;
@@ -58,13 +57,6 @@ void updateVesselName(atl *targetLog, aisP * aisPacket){
 
 //Protocol description: http://catb.org/gpsd/AIVDM.html#_open_source_implementations
 void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog){
-    // Check if target is already in list
-    //
-    // if in list
-    //  update data
-    // else
-    //  insert data
-    
     if(isNewTarget(targetLog, aisPacket) && aisPacket->msgType != 24)
         pushTarget(targetLog, aisPacket);
     if(aisPacket->msgType == 24)
