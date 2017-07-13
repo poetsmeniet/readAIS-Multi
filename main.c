@@ -23,7 +23,10 @@ int main(void){
 
     struct aisTargetLog *targetLog;
     targetLog = malloc(sizeof(struct aisTargetLog)); //Stores AIS targets
-    
+    //memcpy(targetLog->vesselName, "testme", 6);
+    //targetLog->msgType = 0;
+    targetLog->next = NULL;
+
     FILE *fp = openDevice();
     while(1){
         memcpy(aisPacket.vesselName, "Unknown\0", 8 * sizeof(char));
@@ -42,7 +45,7 @@ int main(void){
             decodePayload(&aisPacket);
 
             if(aisPacket.msgType == 18\
-                || aisPacket.msgType == 9119\
+                || aisPacket.msgType == 19\
                 || aisPacket.msgType == 915\
                 || aisPacket.msgType == 24\
                 || aisPacket.msgType == 1\
@@ -50,8 +53,8 @@ int main(void){
                 || aisPacket.msgType == 3\
               ){
                 if(aisPacket.MMSI != prevVessel){
-                     printStruct(&aisPacket);
-                     prevVessel = aisPacket.MMSI;
+                    //printStruct(&aisPacket);
+                    prevVessel = aisPacket.MMSI;
                 }else{
                      printf("Ignoring ais packet, previous vessel was already %i\n", prevVessel);
                      //printf(".");
