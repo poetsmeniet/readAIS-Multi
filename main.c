@@ -62,6 +62,8 @@ int main(void){
 
                 //pass data to manage target list
                 manageTargetList(&aisPacket, targetLog);
+        //printf("*** ais sentence: '%s', checksum: %x\n", line, 1); 
+        printf("*** ais sentence: '%s', checksum: %x\n", line, returnNmeaChecksum(line)); 
 
             }
         }

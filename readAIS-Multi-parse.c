@@ -35,6 +35,17 @@ struct sixbitAsciiTable sixbitAscii[64] = {
     {"111110", '>'},{"111111", '?'}
 };
 
+unsigned int returnNmeaChecksum(char *sentence){
+printf("start of checsum..\n");
+    int checkSum = 0;
+    size_t i;
+    for(i = 1; i < strlen(sentence) - 3; i++){
+        checkSum ^= sentence[i];
+    }
+printf("returned: %x\n", checkSum);
+    return checkSum;
+}
+
 void parseMsg(char *line, aisP *aisPacket){
     //Extract fields of ais packet and store in struct for later decoding
     char *token, *str, *tofree;
