@@ -140,26 +140,23 @@ float COGtmp_returnU1FloatFromBin(char *bin){
         }
         cntRev--;
     }
-    floatU1 *= 0.01;
+    floatU1 *= 0.1;
     return floatU1;
 }
 
 void assignLatLon(char *lonBin, char *latBin, aisP *aisPacket){
-    //printf("debug: lonBin: '%s' latBin: %s\n", lonBin, latBin);
     int lon;
     assignIntFromBin(lonBin, &lon);
-    int valLon = lon & 0x08000000; //determine if result of this oper is positive or 0
-    //printf("Doing bitwise AND operation between Lon (minutes/10000) and '%d' for Lon: %d\n", 0x08000000, valLon);
+    int valLon = lon & 0x08000000; 
 
     int lat;
     assignIntFromBin(latBin, &lat);
     int valLat = lat & 0x04000000;
-    //printf("Doing bitwise AND operation between Lat (minutes/10000) and '%d' for Lat: %d\n\n", 0x04000000, valLat);
 
     if(valLon)
-        lon |= 0xf0000000;//printf("- LON: applied bitwise OR with value: %i\n", 0xf0000000);
+        lon |= 0xf0000000;
     if(valLat)
-        lat |= 0xf8000000;//printf("valLat: %d :: Lat(min): %d, \t\tdegr: %f\n",valLat , lat, lat / 600000.0);
+        lat |= 0xf8000000;
         
     aisPacket->lon = lon / 600000.0;
     aisPacket->lat = lat / 600000.0;
@@ -202,7 +199,8 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
     bitString[0] = '\0';
     
     while(payl[i] != '\0'){
-        //To recover (de-armor) the six bits, subtract 48 from the ASCII character value; if the result is greater than 40 subtract 8
+        //To recover (de-armor) the six bits, subtract 48 from the ASCII character value; 
+        //if the result is greater than 40 subtract 8
         int res1 = (payl[i] - 48);
         if(res1 > 40)
             res1 -= 8;
@@ -252,7 +250,7 @@ void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
             }
         }
         free(nibble);
-        vesselName[sz / 6] = '\0';
+        vesselName[sz / 6 - 1] = '\0';
         memcpy(aisPacket->vesselName, vesselName, sizeof(aisPacket->vesselName));
     }
     free(vesselName);
@@ -263,10 +261,6 @@ void printErr(char *msg){
 }
 
 void decodePayload(aisP * aisPacket){
-        // *** this needs to be generalized, now only coding for type 18 (class B)
-        // 3. Type 24 msgs: call collect data function
-        // variables:
-
         //get message type
         size_t start = 0;
         size_t end = 5;
@@ -297,10 +291,8 @@ void decodePayload(aisP * aisPacket){
         //B
         //lon: 57-84
         //lat: 85-111
-        //
         if(aisPacket->msgType == 18\
                 || aisPacket->msgType == 19){
-            
             //get lon
             start = 57;
             end = 84;
@@ -397,5 +389,16 @@ void decodePayload(aisP * aisPacket){
             aisPacket->sog = 0;
             aisPacket->lon = 0;
             aisPacket->lat = 0;
+        }
+
+        //Static voyage related data ais class A
+        if(aisPacket->msgType == 5){
+            //get ship name and more from type 24 message, correlation through MMSI
+            start = 112;
+            end = 231;
+            subStr = malloc((end - start) + 2 * sizeof(char));
+            assignSubstring(aisPacket->binaryPayload, start, end, subStr);
+            returnAsciiFrom6bits(subStr, aisPacket);
+            free(subStr);
         }
 }

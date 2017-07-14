@@ -46,7 +46,6 @@ _Bool isNewTarget(atl *targetLog, aisP * aisPacket){
 void updateVesselName(atl *targetLog, aisP * aisPacket){
     atl *alist = targetLog;
     while(alist->next != NULL){
-        printf("test: update vesselname %s for MMSI %d (%d)?\n", aisPacket->vesselName, aisPacket->MMSI, alist->MMSI);
         if(alist->MMSI == aisPacket->MMSI){
             memcpy(alist->vesselName, aisPacket->vesselName, sizeof(aisPacket->vesselName));
             break;
@@ -59,7 +58,10 @@ void updateVesselName(atl *targetLog, aisP * aisPacket){
 void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog){
     if(isNewTarget(targetLog, aisPacket) && aisPacket->msgType != 24)
         pushTarget(targetLog, aisPacket);
-    if(aisPacket->msgType == 24)
+
+    //added check on padding, need to implement padding changes (field 7 nmea sentence)
+    if(aisPacket->msgType == 24 && aisPacket->padding == 2\
+            || aisPacket->msgType == 5 && aisPacket->padding == 2)
         updateVesselName(targetLog, aisPacket);
 
     printTargetList(targetLog);
