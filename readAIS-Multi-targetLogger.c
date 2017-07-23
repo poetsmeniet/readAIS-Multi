@@ -7,11 +7,14 @@
 void printTargetList(struct aisTargetLog *targetLog){
     atl *alist = targetLog;
     printf("\n");
+    size_t cnt = 0;
     while(alist->next != NULL){
         printf("-(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\tVesselName: %s\n",\
             alist->msgType, alist->MMSI, alist->sog, alist->cog, alist->lat, alist->lon, alist->vesselName);
         alist = alist->next;
+        cnt++;
     }
+    printf("In summary: %d targets in list\n", cnt);
 }
 
 void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket){
@@ -54,13 +57,13 @@ void updateVesselName(atl *targetLog, aisP * aisPacket){
     }
 }
 
-//Protocol description: http://catb.org/gpsd/AIVDM.html#_open_source_implementations
+//Manges AIS target list
 void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog){
     if(isNewTarget(targetLog, aisPacket) && aisPacket->msgType != 24)
         pushTarget(targetLog, aisPacket);
 
     //added check on padding, need to implement padding changes (field 7 nmea sentence)
-    if(aisPacket->msgType == 24 && aisPacket->padding == 2\
+    if(aisPacket->msgType == 24 && aisPacket->partNo == 0\
             || aisPacket->msgType == 5 && aisPacket->padding == 2)
         updateVesselName(targetLog, aisPacket);
 

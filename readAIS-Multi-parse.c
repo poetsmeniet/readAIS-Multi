@@ -196,10 +196,11 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
     size_t paylSz = strlen(payl);
     size_t testCnt = 0;
     size_t bitStringSz = paylSz  * 6 * sizeof(char) + 1;
-    char *bitString = malloc(bitStringSz);
+    char *bitString = malloc(bitStringSz + 1);
+    bitString[0] = '\0'; //still need to figure out the need for this 
     
     while(payl[i] != '\0'){
-        //To recover (de-armor) the six bits, subtract 48 from the ASCII character value; 
+        //To (de-armor) the six bits, subtract 48 from the ASCII character value; 
         int res1 = (payl[i] - 48);
         if(res1 > 40) //if the result is greater than 40 subtract 
             res1 -= 8;
@@ -214,9 +215,10 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
         i++;
     }
     
-    bitString[bitStringSz - 1] = '\0';
+    size_t nullTermPos = bitStringSz - 1;
+    bitString[nullTermPos] = '\0';
     memcpy(aisPacket->binaryPayload, bitString, bitStringSz);
-    free(bitString); //this seems to be conflicting with out of scope de-alloc?
+    free(bitString); 
 }
 
 //return ascii value of six bit nibble strings
@@ -380,6 +382,13 @@ void decodePayload(aisP * aisPacket){
             returnAsciiFrom6bits(subStr, aisPacket);
             free(subStr);
 
+            //Get part nr of message
+            start = 38;
+            end = 39;
+            subStr = malloc((end - start) + 2 * sizeof(char));
+            assignSubstring(aisPacket->binaryPayload, start, end, subStr);
+            assignUIntFromBin(subStr, &aisPacket->partNo);
+            free(subStr);
             //get cog class a, msgtype 24 (does not contain this info)
             aisPacket->cog = 0.0;
             
