@@ -12,6 +12,7 @@ typedef struct aisPacket{
     char checksum[10];
     char binaryPayload[500];
     unsigned int msgType;
+    unsigned int partNo;
     float sog;
     unsigned int heading;
     float cog;
