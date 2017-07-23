@@ -258,159 +258,146 @@ void printErr(char *msg){
 }
 
 void decodePayload(aisP * aisPacket){
-        //get message type
-        size_t start = 0;
+        size_t start = 0; //get message type
         size_t end = 5;
         char *subStr;
         start = 0;
         end = 5;
         subStr = malloc((end - start) + 2 * sizeof(char));
+
         assignSubstring(aisPacket->binaryPayload, start, end, subStr);
         assignUIntFromBin(subStr, &aisPacket->msgType);
         free(subStr);
-         
-        //get heading
-        start = 124;
+        
+        start = 124;//get heading
         end = 132;
         subStr = malloc((end - start) + 2 * sizeof(char));
+
         assignSubstring(aisPacket->binaryPayload, start, end, subStr);
         assignUIntFromBin(subStr, &aisPacket->heading);
         free(subStr);
         
-        //MMSI at offset 8-37, and convert to decimal
-        start = 8;
+        start = 8;//MMSI at offset 8-37, and convert to decimal
         end = 37;
         subStr = malloc((end - start) + 2 * sizeof(char));
+
         assignSubstring(aisPacket->binaryPayload, start, end, subStr);
         assignUIntFromBin(subStr, &aisPacket->MMSI);
         free(subStr);
 
-        //B
-        //lon: 57-84
-        //lat: 85-111
-        if(aisPacket->msgType == 18\
-                || aisPacket->msgType == 19){
-            //get lon
-            start = 57;
+        //For common navigation block, msg type 18 and 19
+        if(aisPacket->msgType == 18 || aisPacket->msgType == 19){
+            start = 57; //get lon
             end = 84;
             char *subStrLon = malloc((end - start) + 3 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStrLon);
-            //get lat 
-            start = 85;
+            start = 85;//get lat 
             end = 111;
             char *subStrLat = malloc((end - start) + 2 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStrLat);
-            //set lat/lon
-            assignLatLon(subStrLon, subStrLat, aisPacket);
+            assignLatLon(subStrLon, subStrLat, aisPacket);//set lat/lon
             free(subStrLon);
             free(subStrLat);
 
-            //get speed over ground (std class b  CS position report
-            start = 46;
+            start = 46;//get speed over ground 
             end = 55;
             subStr = malloc((end - start) + 2 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             aisPacket->sog= returnU1FloatFromBin(subStr);
             free(subStr);
             
-            //get cog class b
-            start = 112;
+            start = 112;//get cog class b
             end = 123;
             subStr = malloc((end - start) + 2 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             aisPacket->cog = COGtmp_returnU1FloatFromBin(subStr);
             free(subStr);
             
-            //get timestamp
-            start = 133;
+            start = 133;//get timestamp
             end = 138;
             subStr = malloc((end - start) + 3 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             assignUIntFromBin(subStr, &aisPacket->ts);
             free(subStr);
-            
-            
+
+        //Common for type 1, 2 and 3 (class A transponders)
         }else if(aisPacket->msgType == 1\
                 || aisPacket->msgType == 2\
                 || aisPacket->msgType == 3\
                 ){
-            //get speed over ground class A
-            start = 50;
+            
+            start = 50;//get speed over ground 
             end = 59;
             subStr = malloc((end - start) + 2 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             aisPacket->sog= returnU1FloatFromBin(subStr);
             free(subStr);
 
-            //get cog class a
-            start = 116;
+            start = 116;//get cog class a
             end = 127;
             subStr = malloc((end - start) + 2 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             aisPacket->cog = COGtmp_returnU1FloatFromBin(subStr);
             free(subStr);
 
-            //A
-            //lon: 61-88
-            //lat: 89-115
-            //get lon
-            start = 61;
+            start = 61; // Get lon
             end = 88;
             char *subStrLon = malloc((end - start) + 3 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStrLon);
-            //getlat 
-            start = 89;
+            
+            start = 89;//getlat 
             end = 115;
             char *subStrLat = malloc((end - start) + 2 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStrLat);
-            //set lat/lon
-            assignLatLon(subStrLon, subStrLat, aisPacket);
+
+            assignLatLon(subStrLon, subStrLat, aisPacket);//set lat/lon
             free(subStrLon);
             free(subStrLat);
         }
             
-        //addendum to protocol for ais B transponders, integrate later to add to struct
+        //addendum to protocol for ais B transponders
         if(aisPacket->msgType == 24){
-            //get ship name and more from type 24 message, correlation through MMSI
-            start = 40;
+            start = 40;//get shipname
             end = 159;
             subStr = malloc((end - start) + 2 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             retShipnameFrom6bitsString(subStr, aisPacket);
             free(subStr);
 
-            //Get part nr of message
-            start = 38;
+            start = 38;//Get part nr of message
             end = 39;
             subStr = malloc((end - start) + 2 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             assignUIntFromBin(subStr, &aisPacket->partNo);
             free(subStr);
-            //get cog class a, msgtype 24 (does not contain this info)
-            aisPacket->cog = 0.0;
-            
-            //type 24, class B does not have lat/lon.. overwriting with 0 fr debug prints
-            aisPacket->sog = 0;
-            aisPacket->lon = 0;
-            aisPacket->lat = 0;
         }
-        // 
-        if(aisPacket->msgType == 19){
-            //get ship name and more from type 19 message, correlation through MMSI
-            start = 143;
+
+        if(aisPacket->msgType == 19){ //msg type 19, extended report Class B
+            start = 143;//get ship name
             end = 262;
             subStr = malloc((end - start) + 2 * sizeof(char));
+            
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             retShipnameFrom6bitsString(subStr, aisPacket);
             free(subStr);
         }
 
-        //Static voyage related data ais class A
-        if(aisPacket->msgType == 5){
-            //get ship name and more from type 24 message, correlation through MMSI
-            start = 112;
+        if(aisPacket->msgType == 5){//Static voyage related data ais class A
+            start = 112;//get ship name
             end = 231;
             subStr = malloc((end - start) + 2 * sizeof(char));
+
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             retShipnameFrom6bitsString(subStr, aisPacket);
             printf("!!!!! got vesselName from type 5 msg: %s\n", aisPacket->vesselName);
