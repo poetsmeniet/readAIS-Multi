@@ -172,7 +172,7 @@ void ret6bit(char myChar, char *sixbits){
         sixbits[cnt] = bit + '0';
         cnt--;
     }
-        sixbits[6] = '\0';
+    sixbits[6] = '\0';
 }
 
 //Returns substring using given index
@@ -195,29 +195,27 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
 
     size_t paylSz = strlen(payl);
     size_t testCnt = 0;
-    char *bitString = malloc(paylSz  * 6 * sizeof(char) + 1);
-    bitString[0] = '\0';
+    size_t bitStringSz = paylSz  * 6 * sizeof(char) + 1;
+    char *bitString = malloc(bitStringSz);
     
     while(payl[i] != '\0'){
         //To recover (de-armor) the six bits, subtract 48 from the ASCII character value; 
-        //if the result is greater than 40 subtract 8
         int res1 = (payl[i] - 48);
-        if(res1 > 40)
+        if(res1 > 40) //if the result is greater than 40 subtract 
             res1 -= 8;
 
-        //Return 6 bit ascii value
-        char *sixbits = malloc(6 * sizeof(char));
+        char *sixbits = malloc(6 * sizeof(char)); //Return 6 bit ascii value
         ret6bit(res1, sixbits);
-
-        //add to conactenated string
-        strncat(bitString, sixbits, 6 * sizeof(char));
+        
+        strncat(bitString, sixbits, 6 * sizeof(char)); //conactenated string
         testCnt+=6;
         
         free(sixbits);
         i++;
     }
-    bitString[paylSz  * 6 * sizeof(char)] = '\0';
-    memcpy(aisPacket->binaryPayload, bitString, paylSz  * 6 * sizeof(char));
+    
+    bitString[bitStringSz - 1] = '\0';
+    memcpy(aisPacket->binaryPayload, bitString, bitStringSz);
     free(bitString); //this seems to be conflicting with out of scope de-alloc?
 }
 
