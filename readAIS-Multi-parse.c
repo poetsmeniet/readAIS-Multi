@@ -397,6 +397,16 @@ void decodePayload(aisP * aisPacket){
             aisPacket->lon = 0;
             aisPacket->lat = 0;
         }
+        // 
+        if(aisPacket->msgType == 19){
+            //get ship name and more from type 19 message, correlation through MMSI
+            start = 143;
+            end = 262;
+            subStr = malloc((end - start) + 2 * sizeof(char));
+            assignSubstring(aisPacket->binaryPayload, start, end, subStr);
+            returnAsciiFrom6bits(subStr, aisPacket);
+            free(subStr);
+        }
 
         //Static voyage related data ais class A
         if(aisPacket->msgType == 5){
