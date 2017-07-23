@@ -406,6 +406,7 @@ void decodePayload(aisP * aisPacket){
             subStr = malloc((end - start) + 2 * sizeof(char));
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             returnAsciiFrom6bits(subStr, aisPacket);
+            printf("!!!!! got vesselName from type 5 msg: %s\n", aisPacket->vesselName);
             free(subStr);
         }
 }

@@ -63,9 +63,13 @@ void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog){
         pushTarget(targetLog, aisPacket);
 
     //added check on padding, need to implement padding changes (field 7 nmea sentence)
-    if(aisPacket->msgType == 24 && aisPacket->partNo == 0\
-            || aisPacket->msgType == 5 && aisPacket->padding == 2)
+    if(aisPacket->msgType == 24 && aisPacket->partNo == 0)
         updateVesselName(targetLog, aisPacket);
+
+    if(aisPacket->msgType == 5){
+        printf("!!!!!!!!1MSG TYPE 5!!!!!!!!\n");
+        updateVesselName(targetLog, aisPacket);
+    }
 
     printTargetList(targetLog);
 }
