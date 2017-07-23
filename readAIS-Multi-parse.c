@@ -194,10 +194,9 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
     int i = 0;
 
     size_t paylSz = strlen(payl);
-    size_t testCnt = 0;
     size_t bitStringSz = paylSz  * 6 * sizeof(char) + 1;
     char *bitString = malloc(bitStringSz + 1);
-    bitString[0] = '\0'; //still need to figure out the need for this 
+    bitString[0] = '\0'; //this is needed due to the way strncat works, or actually strlen
     
     while(payl[i] != '\0'){
         //To (de-armor) the six bits, subtract 48 from the ASCII character value; 
@@ -205,11 +204,10 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
         if(res1 > 40) //if the result is greater than 40 subtract 
             res1 -= 8;
 
-        char *sixbits = malloc(6 * sizeof(char)); //Return 6 bit ascii value
-        ret6bit(res1, sixbits);
+        char *sixbits = malloc(7 * sizeof(char)); //Return 6 bit ascii value
+        ret6bit(res1, sixbits); //returns six bit nibble for char
         
-        strncat(bitString, sixbits, 6 * sizeof(char)); //conactenated string
-        testCnt+=6;
+        strncat(bitString, sixbits, 6 * sizeof(char)); //conactenated bitstring
         
         free(sixbits);
         i++;
@@ -222,19 +220,18 @@ void returnBinaryPayload(char *payl, aisP *aisPacket){
 }
 
 //return ascii value of six bit nibble strings
-void returnAsciiFrom6bits(char *binString, aisP *aisPacket){
+void retShipnameFrom6bitsString(char *binString, aisP *aisPacket){
     size_t sz = strlen(binString);
     char *vesselName = malloc(((sz / 6) + 1) * sizeof(char));
 
-    //Sanity check, vessel names not allways reliable
-    if(sz % 6 != 0){
+    if(sz % 6 != 0){ //Sanity check, vessel names not allways reliable
         printf("Binary string is not a multiple of 6, so probably invalid\n");
         memcpy(vesselName, "_", sz);
     }else{
         size_t i = 0;
         size_t j = 0;
         size_t k = 0;
-        char *nibble = malloc(6 * sizeof(char));
+        char *nibble = malloc(7 * sizeof(char));
 
         for(i = 0; i < sz; i++){
             nibble[j] = binString[i];
@@ -379,7 +376,7 @@ void decodePayload(aisP * aisPacket){
             end = 159;
             subStr = malloc((end - start) + 2 * sizeof(char));
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
-            returnAsciiFrom6bits(subStr, aisPacket);
+            retShipnameFrom6bitsString(subStr, aisPacket);
             free(subStr);
 
             //Get part nr of message
@@ -404,7 +401,7 @@ void decodePayload(aisP * aisPacket){
             end = 262;
             subStr = malloc((end - start) + 2 * sizeof(char));
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
-            returnAsciiFrom6bits(subStr, aisPacket);
+            retShipnameFrom6bitsString(subStr, aisPacket);
             free(subStr);
         }
 
@@ -415,7 +412,7 @@ void decodePayload(aisP * aisPacket){
             end = 231;
             subStr = malloc((end - start) + 2 * sizeof(char));
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
-            returnAsciiFrom6bits(subStr, aisPacket);
+            retShipnameFrom6bitsString(subStr, aisPacket);
             printf("!!!!! got vesselName from type 5 msg: %s\n", aisPacket->vesselName);
             free(subStr);
         }

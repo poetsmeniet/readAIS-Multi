@@ -24,13 +24,13 @@ int main(void){
     FILE *fp = openDevice();
     while(1){
         memcpy(aisPacket.vesselName, "Unknown\0", 8 * sizeof(char));
+
         getline(&line, &len, fp);
                 
-        //Get packet details into convenient struct
-        parseMsg(line, &aisPacket);
+        parseMsg(line, &aisPacket);//Get packet tokens
     
-        //Get binary payload into struct
-        returnBinaryPayload(aisPacket.payload, &aisPacket);
+        returnBinaryPayload(aisPacket.payload, &aisPacket); //Get binary payload
+        
         if(strlen(aisPacket.binaryPayload) > 160){
 
             //Decode bitstring (binary payload0

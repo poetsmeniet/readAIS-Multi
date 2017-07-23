@@ -66,7 +66,7 @@ void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog){
     if(aisPacket->msgType == 24 && aisPacket->partNo == 0)
         updateVesselName(targetLog, aisPacket);
 
-    if(aisPacket->msgType == 5){
+    if(aisPacket->msgType == 5 || aisPacket->msgType == 19){
         printf("!!!!!!!!1MSG TYPE 5!!!!!!!!\n");
         updateVesselName(targetLog, aisPacket);
     }

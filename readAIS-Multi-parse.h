@@ -31,7 +31,7 @@ void assignUIntFromBin(char *bin, unsigned int *target);
 float returnU1FloatFromBin(char *bin);
 float COGtmp_returnU1FloatFromBin(char *bin);
 int assignSubstring(char *myStr, size_t start, size_t end, char *subStr);
-void returnAsciiFrom6bits(char *binString, aisP *aisPacket);
+void retShipnameFrom6bitsString(char *binString, aisP *aisPacket);
 void assignLatLon(char *lonBin, char *latBin, aisP *aisPacket);
 void decodePayload(aisP * aisPacket);
 
