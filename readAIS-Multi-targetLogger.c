@@ -1,26 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "readAIS-Multi-targetLogger.h"
 #include "readAIS-Multi-parse.h"
 
-void printTargetList(struct aisTargetLog *targetLog){
-    atl *alist = targetLog;
-    printf("\n");
-    size_t cnt = 0;
-
-    printf("Type\tMMSI\t\tSog\t\tCog\t\tLat/ Lon\t\tVesselName\n");
-    while(alist->next != NULL){
-        printf("-(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\t%s\n",\
-            alist->msgType, alist->MMSI, alist->sog, alist->cog, alist->lat, alist->lon, alist->vesselName);
-        alist = alist->next;
-        cnt++;
-    }
-    printf("In summary: %d targets in list\n", cnt);
-}
-
 void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket){
+    time_t currentTime = time(NULL);
     atl *pushList = targetLog;
+
     while(pushList->next != NULL){
         pushList = pushList->next;
     }
@@ -34,7 +22,35 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket){
     pushList->sog = aisPacket->sog;
     pushList->lat = aisPacket->lat;
     pushList->lon = aisPacket->lon;
+    pushList->lastUpdate = currentTime;
     pushList->next->next = NULL;
+}
+
+void printTargetList(struct aisTargetLog *targetLog){
+    atl *alist = targetLog; //Pointer to targetLog
+    time_t currentTime = time(NULL);
+    char staleNote[8] = "\0";
+    int maxAge = 10; //Target age in minutes
+    size_t cnt = 0;
+    
+    printf("Type\tMMSI\t\tSog\t\tCog\t\tLat/ Lon\t\tVesselName\n");
+    while(alist->next != NULL){
+        //denote "stale" targets
+        if(alist->lastUpdate < (currentTime - (60 * maxAge)))
+            memcpy(staleNote, "(stale)\0", 8);
+        else
+            staleNote[0] = '\0';
+
+        printf("-(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\t%s %s\n",\
+            alist->msgType, alist->MMSI,
+            alist->sog, alist->cog, 
+            alist->lat, alist->lon, 
+            alist->vesselName, staleNote);
+        cnt++;
+
+        alist = alist->next;
+    }
+    printf("In summary: %d targets in list\n", cnt);
 }
 
 _Bool isNewTarget(atl *targetLog, aisP * aisPacket){
