@@ -8,8 +8,10 @@ void printTargetList(struct aisTargetLog *targetLog){
     atl *alist = targetLog;
     printf("\n");
     size_t cnt = 0;
+
+    printf("Type\tMMSI\t\tSog\t\tCog\t\tLat/ Lon\t\tVesselName\n");
     while(alist->next != NULL){
-        printf("-(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\tVesselName: %s\n",\
+        printf("-(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\t%s\n",\
             alist->msgType, alist->MMSI, alist->sog, alist->cog, alist->lat, alist->lon, alist->vesselName);
         alist = alist->next;
         cnt++;
