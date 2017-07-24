@@ -35,40 +35,63 @@ struct sixbitAsciiTable sixbitAscii[64] = {
     {"111110", '>'},{"111111", '?'}
 };
 
-unsigned int returnNmeaChecksum(char *sentence){
-printf("start of checsum..\n");
-    int checkSum = 0;
-    size_t i;
-    for(i = 1; i < strlen(sentence) - 3; i++){
-        checkSum ^= sentence[i];
+unsigned int nmeaChecksumVerified(char *sentence){
+    if(strlen(sentence) > 20){ //Test sentence length
+        int checkSum = 0;
+        size_t i;
+
+        //Do xor checksum
+        for(i = 1; i < strlen(sentence) - 5; i++){
+            checkSum ^= sentence[i];
+        }
+
+        //Grab sentence checksum
+        char *subStr = malloc(2 * sizeof(char));
+        size_t start = strlen(sentence) - 4;
+        size_t end = strlen(sentence) - 1;
+
+        assignSubstring(sentence, start, end, subStr);
+ 
+        _Bool rc = 0; //Return code
+        int checkSumSentence= (int)strtol(subStr, NULL, 16); //Convert string to int
+
+        if(checkSum == checkSumSentence) //checksums match?
+                rc = 1;
+
+        free(subStr);
+
+        return rc;
+    }else{
+        return 0; //Sentence too short
     }
-printf("returned: %x\n", checkSum);
-    return checkSum;
 }
 
 void parseMsg(char *line, aisP *aisPacket){
-    //Extract fields of ais packet and store in struct for later decoding
-    char *token, *str, *tofree;
-    tofree = str = strdup(line);  
-    size_t tokNr = 1;
-    while ((token = strsep(&str, ","))){ 
-        if(tokNr == 1)
-            memcpy(aisPacket->packetType, token, sizeof(aisPacket->packetType));
-        if(tokNr == 2)
-            aisPacket->fragCnt = atoi(token);
-        if(tokNr == 3)
-            aisPacket->fragNr = atoi(token);
-        if(tokNr == 4)
-            aisPacket->seqId = atoi(token);
-        if(tokNr == 5)
-            aisPacket->chanCode = *token;
-        if(tokNr == 6)
-            memcpy(aisPacket->payload, token, sizeof(aisPacket->payload));
-        if(tokNr == 7)
-            aisPacket->padding = atoi(token);
-        tokNr++;
+    //Do nema 0183 checksum
+    if(nmeaChecksumVerified(line)){
+        //Extract fields of ais packet and store in struct for later decoding
+        char *token, *str, *tofree;
+        tofree = str = strdup(line);  
+        size_t tokNr = 1;
+        while ((token = strsep(&str, ","))){ 
+            if(tokNr == 1)
+                memcpy(aisPacket->packetType, token, sizeof(aisPacket->packetType));
+            if(tokNr == 2)
+                aisPacket->fragCnt = atoi(token);
+            if(tokNr == 3)
+                aisPacket->fragNr = atoi(token);
+            if(tokNr == 4)
+                aisPacket->seqId = atoi(token);
+            if(tokNr == 5)
+                aisPacket->chanCode = *token;
+            if(tokNr == 6)
+                memcpy(aisPacket->payload, token, sizeof(aisPacket->payload));
+            if(tokNr == 7)
+                aisPacket->padding = atoi(token);
+            tokNr++;
+        }
+        free(tofree);
     }
-    free(tofree);
 }
 
 //Return power of unsigned integer
