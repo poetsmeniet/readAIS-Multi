@@ -152,21 +152,6 @@ float returnU1FloatFromBin(char *bin){
     return floatU1;
 }
 
-float COGtmp_returnU1FloatFromBin(char *bin){
-    int sz = strlen(bin);
-    int cnt = 0;
-    int cntRev = sz - 1;
-    float floatU1 = 0.0;
-    for(cnt = 0; cnt < sz; cnt++){
-        if(bin[cnt] == '1'){
-            floatU1 += power(2, cntRev);
-        }
-        cntRev--;
-    }
-    floatU1 *= 0.1;
-    return floatU1;
-}
-
 void assignLatLon(char *lonBin, char *latBin, aisP *aisPacket){
     int lon;
     assignIntFromBin(lonBin, &lon);
@@ -337,7 +322,7 @@ void decodePayload(aisP * aisPacket){
             subStr = malloc((end - start) + 2 * sizeof(char));
 
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
-            aisPacket->cog = COGtmp_returnU1FloatFromBin(subStr);
+            aisPacket->cog = returnU1FloatFromBin(subStr);
             free(subStr);
             
             start = 133;//get timestamp
@@ -367,7 +352,7 @@ void decodePayload(aisP * aisPacket){
             subStr = malloc((end - start) + 2 * sizeof(char));
 
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
-            aisPacket->cog = COGtmp_returnU1FloatFromBin(subStr);
+            aisPacket->cog = returnU1FloatFromBin(subStr);
             free(subStr);
 
             start = 61; // Get lon

@@ -29,7 +29,6 @@ void parseMsg(char *line, aisP *aisMsg);
 void returnBinaryPayload(char *payl, aisP *aisPacket);
 void assignUIntFromBin(char *bin, unsigned int *target);
 float returnU1FloatFromBin(char *bin);
-float COGtmp_returnU1FloatFromBin(char *bin);
 int assignSubstring(char *myStr, size_t start, size_t end, char *subStr);
 void retShipnameFrom6bitsString(char *binString, aisP *aisPacket);
 void assignLatLon(char *lonBin, char *latBin, aisP *aisPacket);
