@@ -15,6 +15,13 @@ typedef struct aisTargetLog{
     struct aisTargetLog *next;
 }atl;
 
+struct cntyCodes{
+    unsigned int code;
+    char name[40];
+    char abbrev[2];
+};
+
 void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog);
 
+void returnCntyCodes(struct cntyCodes *cc);
 #endif
