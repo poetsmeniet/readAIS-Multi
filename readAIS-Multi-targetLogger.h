@@ -22,7 +22,7 @@ struct cntyCodes{
     char abbrev[2];
 };
 
-void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog);
+void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cntyCodes *cc);
 
 void returnCntyCodes(struct cntyCodes *cc);
 #endif

@@ -17,7 +17,7 @@ unsigned int ret1st3Dgts(unsigned int MMSI){
     return 0;
 }
 
-void returnCntyCodes(struct cntyCodes *cc); //Use in main for efficiency
+void returnCntyCodes(struct cntyCodes *cc); 
 
 //Returns country name, use locally
 void returnCntyName(char *currCnty, unsigned int cntyCode, struct cntyCodes *cc){
@@ -50,7 +50,7 @@ void updateTarget(atl *targetLog, aisP * aisPacket){
     }
 }
 
-void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket){
+void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCodes *cc){
     time_t currentTime = time(NULL);
     atl *pushList = targetLog;
 
@@ -59,8 +59,6 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket){
     }
 
     //Country code stuff
-    struct cntyCodes cc[400];
-    returnCntyCodes(cc); //test efficiency, maybe run this once in main
     char currCnty[3];
     returnCntyName(currCnty, ret1st3Dgts(aisPacket->MMSI), cc);
 
@@ -134,10 +132,10 @@ void updateVesselName(atl *targetLog, aisP * aisPacket){
 }
 
 //Manges AIS target list
-void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog){
+void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cntyCodes *cc){
     if(isNewTarget(targetLog, aisPacket)){
         if(aisPacket->msgType != 24)
-            pushTarget(targetLog, aisPacket);
+            pushTarget(targetLog, aisPacket, cc);
     }else{
         updateTarget(targetLog, aisPacket);
     }
