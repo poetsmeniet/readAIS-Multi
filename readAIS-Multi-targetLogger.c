@@ -19,6 +19,25 @@ void returnCntyName(char *currCnty, unsigned int cntyCode, struct cntyCodes *cc)
     }
 }
 
+void updateTarget(atl *targetLog, aisP * aisPacket){
+    time_t currentTime = time(NULL);
+    atl *pushList = targetLog;
+
+    while(pushList->next != NULL){
+        if(pushList->MMSI == aisPacket->MMSI){
+            pushList->heading = aisPacket->heading;
+            pushList->cog = aisPacket->cog;
+            pushList->sog = aisPacket->sog;
+            pushList->lat = aisPacket->lat;
+            pushList->lon = aisPacket->lon;
+            pushList->lastUpdate = currentTime;
+            printf("@@DONE UPDATING TARGET '%d'\n", aisPacket->MMSI);
+            break;
+        }
+        pushList = pushList->next;
+    }
+}
+
 void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket){
     time_t currentTime = time(NULL);
     atl *pushList = targetLog;
@@ -44,7 +63,7 @@ void printTargetList(struct aisTargetLog *targetLog){
     atl *alist = targetLog; //Pointer to targetLog
     time_t currentTime = time(NULL);
     char staleNote[8] = "\0";
-    int maxAge = 10; //Target age in minutes
+    int maxAge = 5; //Target age in minutes
     size_t cnt = 0;
     
     printf("Type\tMMSI\t\tSog\t\tCog\t\tLat/ Lon\t\tVesselName\n");
@@ -55,11 +74,13 @@ void printTargetList(struct aisTargetLog *targetLog){
         else
             staleNote[0] = '\0';
 
-        printf("-(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\t%s %s\n",\
-            alist->msgType, alist->MMSI,
-            alist->sog, alist->cog, 
-            alist->lat, alist->lon, 
-            alist->vesselName, staleNote);
+        if(alist->lastUpdate > (currentTime - (60 * (maxAge * 2)))){
+            printf("-(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\t%s %s\n",\
+                alist->msgType, alist->MMSI,
+                alist->sog, alist->cog, 
+                alist->lat, alist->lon, 
+                alist->vesselName, staleNote);
+        }
         cnt++;
 
         alist = alist->next;
@@ -79,10 +100,12 @@ _Bool isNewTarget(atl *targetLog, aisP * aisPacket){
 }
 
 void updateVesselName(atl *targetLog, aisP * aisPacket){
+    time_t currentTime = time(NULL);
     atl *alist = targetLog;
     while(alist->next != NULL){
         if(alist->MMSI == aisPacket->MMSI){
             memcpy(alist->vesselName, aisPacket->vesselName, sizeof(aisPacket->vesselName));
+            alist->lastUpdate = currentTime;
             break;
         }
         alist = alist->next;
@@ -91,15 +114,18 @@ void updateVesselName(atl *targetLog, aisP * aisPacket){
 
 //Manges AIS target list
 void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog){
-    if(isNewTarget(targetLog, aisPacket) && aisPacket->msgType != 24)
-        pushTarget(targetLog, aisPacket);
+    if(isNewTarget(targetLog, aisPacket)){
+        if(aisPacket->msgType != 24)
+            pushTarget(targetLog, aisPacket);
+    }else{
+        updateTarget(targetLog, aisPacket);
+    }
 
-    //added check on padding, need to implement padding changes (field 7 nmea sentence)
+    //Msg type 24, partno 0 contains vessel name
     if(aisPacket->msgType == 24 && aisPacket->partNo == 0)
         updateVesselName(targetLog, aisPacket);
 
     if(aisPacket->msgType == 5 || aisPacket->msgType == 19){
-        printf("!!!!!!!!1MSG TYPE 5!!!!!!!!\n");
         updateVesselName(targetLog, aisPacket);
     }
 
