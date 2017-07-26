@@ -5,6 +5,18 @@
 #include "readAIS-Multi-targetLogger.h"
 #include "readAIS-Multi-parse.h"
 
+//Silly function, needs to be replaced
+unsigned int ret1st3Dgts(unsigned int MMSI){
+    size_t cnt =0;
+    while(MMSI != 0){
+       if(cnt == 6)
+           return MMSI;
+       MMSI /= 10;
+       cnt++;
+    }
+    return 0;
+}
+
 void returnCntyCodes(struct cntyCodes *cc); //Use in main for efficiency
 
 //Returns country name, use locally
@@ -12,7 +24,8 @@ void returnCntyName(char *currCnty, unsigned int cntyCode, struct cntyCodes *cc)
     size_t cnt = 0;
     while(cc[cnt].code != 0){
         if(cc[cnt].code == cntyCode){
-            memcpy(currCnty, cc[cnt].name, sizeof(cc[cnt].name));
+            memcpy(currCnty, cc[cnt].abbrev, sizeof(cc[cnt].abbrev));
+            currCnty[2] = '\0';
             break;
         }
         cnt++;
@@ -31,7 +44,6 @@ void updateTarget(atl *targetLog, aisP * aisPacket){
             pushList->lat = aisPacket->lat;
             pushList->lon = aisPacket->lon;
             pushList->lastUpdate = currentTime;
-            printf("@@DONE UPDATING TARGET '%d'\n", aisPacket->MMSI);
             break;
         }
         pushList = pushList->next;
@@ -66,7 +78,7 @@ void printTargetList(struct aisTargetLog *targetLog){
     int maxAge = 5; //Target age in minutes
     size_t cnt = 0;
     
-    printf("Type\tMMSI\t\tSog\t\tCog\t\tLat/ Lon\t\tVesselName\n");
+    printf("Type\tMMSI\t\tSog\tCog\tLat/ Lon\t\tCnty\tVesselName\n");
     while(alist->next != NULL){
         //denote "stale" targets
         if(alist->lastUpdate < (currentTime - (60 * maxAge)))
@@ -74,11 +86,17 @@ void printTargetList(struct aisTargetLog *targetLog){
         else
             staleNote[0] = '\0';
 
-        if(alist->lastUpdate > (currentTime - (60 * (maxAge * 2)))){
-            printf("-(%d)\t%i\t%.2f kts\t%.2f°\t\t%.6f %.6f\t%s %s\n",\
+        //Country code stuff
+        struct cntyCodes cc[400];
+        returnCntyCodes(cc); //test efficiency, maybe run this once in main
+        char currCnty[3];
+        returnCntyName(currCnty, ret1st3Dgts(alist->MMSI), cc);
+
+        if(alist->lastUpdate > (currentTime - (60 * (maxAge)))){
+            printf("-(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%s\t%s %s\n",\
                 alist->msgType, alist->MMSI,
                 alist->sog, alist->cog, 
-                alist->lat, alist->lon, 
+                alist->lat, alist->lon, currCnty,
                 alist->vesselName, staleNote);
         }
         cnt++;
