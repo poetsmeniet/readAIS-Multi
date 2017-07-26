@@ -58,8 +58,15 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket){
         pushList = pushList->next;
     }
 
+    //Country code stuff
+    struct cntyCodes cc[400];
+    returnCntyCodes(cc); //test efficiency, maybe run this once in main
+    char currCnty[3];
+    returnCntyName(currCnty, ret1st3Dgts(aisPacket->MMSI), cc);
+
     pushList->next = malloc(sizeof(struct aisTargetLog));
     memcpy(pushList->vesselName, aisPacket->vesselName, sizeof(aisPacket->vesselName));
+    memcpy(pushList->cnty, currCnty, sizeof(currCnty));;
     pushList->msgType = aisPacket->msgType;
     pushList->MMSI = aisPacket->MMSI;
     pushList->heading = aisPacket->heading;
@@ -77,6 +84,7 @@ void printTargetList(struct aisTargetLog *targetLog){
     char staleNote[8] = "\0";
     int maxAge = 5; //Target age in minutes
     size_t cnt = 0;
+    size_t cntC = 0;
     
     printf("Type\tMMSI\t\tSog\tCog\tLat/ Lon\t\tCnty\tVesselName\n");
     while(alist->next != NULL){
@@ -86,24 +94,19 @@ void printTargetList(struct aisTargetLog *targetLog){
         else
             staleNote[0] = '\0';
 
-        //Country code stuff
-        struct cntyCodes cc[400];
-        returnCntyCodes(cc); //test efficiency, maybe run this once in main
-        char currCnty[3];
-        returnCntyName(currCnty, ret1st3Dgts(alist->MMSI), cc);
-
         if(alist->lastUpdate > (currentTime - (60 * (maxAge)))){
             printf("-(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%s\t%s %s\n",\
                 alist->msgType, alist->MMSI,
                 alist->sog, alist->cog, 
-                alist->lat, alist->lon, currCnty,
+                alist->lat, alist->lon, alist->cnty,
                 alist->vesselName, staleNote);
+            cntC++;
         }
         cnt++;
 
         alist = alist->next;
     }
-    printf("In summary: %d targets in list\n", cnt);
+    printf("In summary: %d targets in list, %d active.\n", cnt, cntC);
 }
 
 _Bool isNewTarget(atl *targetLog, aisP * aisPacket){

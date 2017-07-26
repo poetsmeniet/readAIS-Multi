@@ -12,6 +12,7 @@ typedef struct aisTargetLog{
     float lat;
     float lon;
     time_t lastUpdate;
+    char cnty[3];
     struct aisTargetLog *next;
 }atl;
 
