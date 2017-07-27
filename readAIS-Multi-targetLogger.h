@@ -13,6 +13,7 @@ typedef struct aisTargetLog{
     float lon;
     time_t lastUpdate;
     char cnty[3];
+    double dst;
     struct aisTargetLog *next;
 }atl;
 

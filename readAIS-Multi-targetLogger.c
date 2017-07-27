@@ -39,12 +39,16 @@ void updateTarget(atl *targetLog, aisP * aisPacket){
 
     while(pushList->next != NULL){
         if(pushList->MMSI == aisPacket->MMSI){
+            gpsPos myPos;
+            returnGPSPos(&myPos);
+            
             pushList->heading = aisPacket->heading;
             pushList->cog = aisPacket->cog;
             pushList->sog = aisPacket->sog;
             pushList->lat = aisPacket->lat;
             pushList->lon = aisPacket->lon;
             pushList->lastUpdate = currentTime;
+            pushList->dst = calcDistance(myPos.lat, myPos.lon, aisPacket->lat, aisPacket->lon);
             break;
         }
         pushList = pushList->next;
@@ -63,6 +67,10 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCode
     char currCnty[3];
     returnCntyName(currCnty, ret1st3Dgts(aisPacket->MMSI), cc);
 
+    //To calculate distance to target
+    gpsPos myPos;
+    returnGPSPos(&myPos);
+
     pushList->next = malloc(sizeof(struct aisTargetLog));
     memcpy(pushList->vesselName, aisPacket->vesselName, sizeof(aisPacket->vesselName));
     memcpy(pushList->cnty, currCnty, sizeof(currCnty));;
@@ -74,6 +82,7 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCode
     pushList->lat = aisPacket->lat;
     pushList->lon = aisPacket->lon;
     pushList->lastUpdate = currentTime;
+    pushList->dst = calcDistance(myPos.lat, myPos.lon, aisPacket->lat, aisPacket->lon);
     pushList->next->next = NULL;
 }
 
@@ -97,7 +106,7 @@ void printTargetList(struct aisTargetLog *targetLog){
             printf("-(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%.2f\t%s\t%s %s\n",\
                 alist->msgType, alist->MMSI,
                 alist->sog, alist->cog, 
-                alist->lat, alist->lon, calcDistance(42.738705, -9.038047, 42.762424, -8.948540), \
+                alist->lat, alist->lon, alist->dst, \
                 alist->cnty,
                 alist->vesselName, staleNote);
             cntC++;
