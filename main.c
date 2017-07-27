@@ -4,8 +4,8 @@
 #include "readAIS-Multi-parse.h"
 #include "readAIS-Multi-targetLogger.h"
 #define MAXLEN 120
-//#define DEVICE "/dev/ttyUSB0"
-#define DEVICE "dump4000"
+#define DEVICE "/dev/ttyUSB0"
+//#define DEVICE "dump4000"
 #define clear() printf("\033[H\033[J") //to clear the linux term
 
 //Read AIS-MULTI data device
@@ -28,8 +28,8 @@ int main(void){
     returnCntyCodes(cc); //test efficiency, maybe run this once in main
 
     FILE *fp = openDevice();
-    //while(1){
-    while(!feof(fp)){
+    while(1){
+    //while(!feof(fp)){
         getline(&line, &len, fp);
 
         if(strlen(line) > 40 && strlen(line) < 55){ //Saves about 25% performance

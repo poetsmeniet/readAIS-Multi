@@ -4,6 +4,7 @@
 #include <time.h>
 #include "readAIS-Multi-targetLogger.h"
 #include "readAIS-Multi-parse.h"
+#include "gpsTools.h"
 
 //Silly function, needs to be replaced
 unsigned int ret1st3Dgts(unsigned int MMSI){
@@ -84,7 +85,7 @@ void printTargetList(struct aisTargetLog *targetLog){
     size_t cnt = 0;
     size_t cntC = 0;
     
-    printf("Type\tMMSI\t\tSog\tCog\tLat/ Lon\t\tCnty\tVesselName\n");
+    printf("Type\tMMSI\t\tSog\tCog\tLat/ Lon\t\tDst\tCnty\tVesselName\n");
     while(alist->next != NULL){
         //denote "stale" targets
         if(alist->lastUpdate < (currentTime - (60 * maxAge)))
@@ -93,10 +94,11 @@ void printTargetList(struct aisTargetLog *targetLog){
             staleNote[0] = '\0';
 
         if(alist->lastUpdate > (currentTime - (60 * (maxAge)))){
-            printf("-(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%s\t%s %s\n",\
+            printf("-(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%.2f\t%s\t%s %s\n",\
                 alist->msgType, alist->MMSI,
                 alist->sog, alist->cog, 
-                alist->lat, alist->lon, alist->cnty,
+                alist->lat, alist->lon, calcDistance(42.738705, -9.038047, 42.762424, -8.948540), \
+                alist->cnty,
                 alist->vesselName, staleNote);
             cntC++;
         }
