@@ -19,3 +19,8 @@ double calcDistance(double lat1, double lon1, double lat2, double lon2) {
     
     return R * 2 * asin(sqrt(a));
 }
+
+void returnGPSPos(gpsPos *myPos){
+    myPos->lat = 42.738705;
+    myPos->lon = -9.0380474;
+}
