@@ -5,6 +5,7 @@
 #include "readAIS-Multi-targetLogger.h"
 #include "readAIS-Multi-parse.h"
 #include "gpsTools.h"
+#define clear() printf("\033[H\033[J") //to clear the linux term
 
 //Silly function, needs to be replaced
 unsigned int ret1st3Dgts(unsigned int MMSI){
@@ -139,12 +140,14 @@ void updateVesselName(atl *targetLog, aisP * aisPacket){
 void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cntyCodes *cc){
     gpsPos myPos; //Get station current GPS coords
     returnGPSPos(&myPos);
+    clear();
             
     if(isNewTarget(targetLog, aisPacket)){
         if(aisPacket->msgType != 24)
             pushTarget(targetLog, aisPacket, cc, &myPos);
     }else{
-        updateTarget(targetLog, aisPacket, &myPos);
+        if(aisPacket->msgType != 24)
+            updateTarget(targetLog, aisPacket, &myPos);
     }
 
     //Msg type 24, partno 0 contains vessel name
