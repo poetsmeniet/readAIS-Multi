@@ -33,29 +33,26 @@ void returnCntyName(char *currCnty, unsigned int cntyCode, struct cntyCodes *cc)
     }
 }
 
-void updateTarget(atl *targetLog, aisP * aisPacket){
+void updateTarget(atl *targetLog, aisP * aisPacket, gpsPos *myPos){
     time_t currentTime = time(NULL);
     atl *pushList = targetLog;
 
     while(pushList->next != NULL){
         if(pushList->MMSI == aisPacket->MMSI){
-            gpsPos myPos;
-            returnGPSPos(&myPos);
-            
             pushList->heading = aisPacket->heading;
             pushList->cog = aisPacket->cog;
             pushList->sog = aisPacket->sog;
             pushList->lat = aisPacket->lat;
             pushList->lon = aisPacket->lon;
             pushList->lastUpdate = currentTime;
-            pushList->dst = calcDistance(myPos.lat, myPos.lon, aisPacket->lat, aisPacket->lon);
+            pushList->dst = calcDistance(myPos->lat, myPos->lon, aisPacket->lat, aisPacket->lon);
             break;
         }
         pushList = pushList->next;
     }
 }
 
-void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCodes *cc){
+void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCodes *cc, gpsPos *myPos){
     time_t currentTime = time(NULL);
     atl *pushList = targetLog;
 
@@ -66,10 +63,6 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCode
     //Country code stuff
     char currCnty[3];
     returnCntyName(currCnty, ret1st3Dgts(aisPacket->MMSI), cc);
-
-    //To calculate distance to target
-    gpsPos myPos;
-    returnGPSPos(&myPos);
 
     pushList->next = malloc(sizeof(struct aisTargetLog));
     memcpy(pushList->vesselName, aisPacket->vesselName, sizeof(aisPacket->vesselName));
@@ -82,7 +75,7 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCode
     pushList->lat = aisPacket->lat;
     pushList->lon = aisPacket->lon;
     pushList->lastUpdate = currentTime;
-    pushList->dst = calcDistance(myPos.lat, myPos.lon, aisPacket->lat, aisPacket->lon);
+    pushList->dst = calcDistance(myPos->lat, myPos->lon, aisPacket->lat, aisPacket->lon);
     pushList->next->next = NULL;
 }
 
@@ -94,7 +87,7 @@ void printTargetList(struct aisTargetLog *targetLog){
     size_t cnt = 0;
     size_t cntC = 0;
     
-    printf("Type\tMMSI\t\tSog\tCog\tLat/ Lon\t\tDst\tCnty\tVesselName\n");
+    printf("Nr\tType\tMMSI\t\tSog\tCog\tLat/ Lon\t\tDst\tCnty\tVesselName\n");
     while(alist->next != NULL){
         //denote "stale" targets
         if(alist->lastUpdate < (currentTime - (60 * maxAge)))
@@ -103,7 +96,7 @@ void printTargetList(struct aisTargetLog *targetLog){
             staleNote[0] = '\0';
 
         if(alist->lastUpdate > (currentTime - (60 * (maxAge)))){
-            printf("-(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%.2f\t%s\t%s %s\n",\
+            printf("%d:\t(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%.2f\t%s\t%s %s\n", cnt,\
                 alist->msgType, alist->MMSI,
                 alist->sog, alist->cog, 
                 alist->lat, alist->lon, alist->dst, \
@@ -144,11 +137,14 @@ void updateVesselName(atl *targetLog, aisP * aisPacket){
 
 //Manges AIS target list
 void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cntyCodes *cc){
+    gpsPos myPos; //Get station current GPS coords
+    returnGPSPos(&myPos);
+            
     if(isNewTarget(targetLog, aisPacket)){
         if(aisPacket->msgType != 24)
-            pushTarget(targetLog, aisPacket, cc);
+            pushTarget(targetLog, aisPacket, cc, &myPos);
     }else{
-        updateTarget(targetLog, aisPacket);
+        updateTarget(targetLog, aisPacket, &myPos);
     }
 
     //Msg type 24, partno 0 contains vessel name
