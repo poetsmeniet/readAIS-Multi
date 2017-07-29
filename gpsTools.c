@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "gpsTools.h"
+#include "readAIS-Multi-parse.h"
 #define DEVICE "/dev/ttyUSB1"
 //Dont forget to link with -lm
 
@@ -62,6 +63,9 @@ void returnGPSPos(gpsPos *myPos){
 
     while(1){
         getline(&line, &len, fp);
+
+        if(!nmeaChecksumVerified(line))
+                continue;
 
         char *token, *str, *tofree;
         tofree = str = strdup(line);  
