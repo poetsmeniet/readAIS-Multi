@@ -23,7 +23,7 @@ typedef struct aisPacket{
     unsigned int ts;
 }aisP;
 
-unsigned int returnNmeaChecksum(char *sentence);
+unsigned int nmeaChecksumVerified(char *sentence);
 void printErr(char *msg);
 void parseMsg(char *line, aisP *aisMsg);
 void returnBinaryPayload(char *payl, aisP *aisPacket);
