@@ -15,6 +15,7 @@ typedef struct aisTargetLog{
     char cnty[3];
     double dst;
     struct aisTargetLog *next;
+    size_t length;
 }atl;
 
 struct cntyCodes{

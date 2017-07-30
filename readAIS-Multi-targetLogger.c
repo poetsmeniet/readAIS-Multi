@@ -77,10 +77,12 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCode
     pushList->lon = aisPacket->lon;
     pushList->lastUpdate = currentTime;
     pushList->dst = calcDistance(myPos->lat, myPos->lon, aisPacket->lat, aisPacket->lon);
+    pushList->length = 0;
     pushList->next->next = NULL;
 }
 
 void printTargetList(struct aisTargetLog *targetLog){
+    clear();
     atl *alist = targetLog; //Pointer to targetLog
     time_t currentTime = time(NULL);
     char staleNote[8] = "\0";
@@ -88,7 +90,7 @@ void printTargetList(struct aisTargetLog *targetLog){
     size_t cnt = 0;
     size_t cntC = 0;
     
-    printf("Nr\tType\tMMSI\t\tSog\tCog\tLat/ Lon\t\tDst\tCnty\tVesselName\n");
+    printf("Nr\tType\tMMSI\t\tSog\tCog\tLat/ Lon\t\tDst\tCnty\tLen (m)\tVesselName\n");
     while(alist->next != NULL){
         //denote "stale" targets
         if(alist->lastUpdate < (currentTime - (60 * maxAge)))
@@ -97,11 +99,11 @@ void printTargetList(struct aisTargetLog *targetLog){
             staleNote[0] = '\0';
 
         if(alist->lastUpdate > (currentTime - (60 * (maxAge)))){
-            printf("%d:\t(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%.2f\t%s\t%s %s\n", cnt,\
+            printf("%d:\t(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%.2f\t%s\t%d\t%s %s\n", cnt,\
                 alist->msgType, alist->MMSI,
                 alist->sog, alist->cog, 
                 alist->lat, alist->lon, alist->dst, \
-                alist->cnty,
+                alist->cnty, alist->length,
                 alist->vesselName, staleNote);
             cntC++;
         }
@@ -123,6 +125,19 @@ _Bool isNewTarget(atl *targetLog, aisP * aisPacket){
     return 1;
 }
 
+void updateVesselDetails(atl *targetLog, aisP * aisPacket){
+    time_t currentTime = time(NULL);
+    atl *alist = targetLog;
+    while(alist->next != NULL){
+        if(alist->MMSI == aisPacket->MMSI){
+            alist->lastUpdate = currentTime;
+            alist->length = aisPacket->length;
+            printf("assigned length from packet to alist: %d :: %d for mmsi %d\n", aisPacket->length, alist->length, alist->MMSI); 
+            break;
+        }
+        alist = alist->next;
+    }
+}
 void updateVesselName(atl *targetLog, aisP * aisPacket){
     time_t currentTime = time(NULL);
     atl *alist = targetLog;
@@ -140,7 +155,6 @@ void updateVesselName(atl *targetLog, aisP * aisPacket){
 void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cntyCodes *cc){
     gpsPos myPos; //Get station current GPS coords
     returnGPSPos(&myPos);
-    clear();
             
     if(isNewTarget(targetLog, aisPacket)){
         if(aisPacket->msgType != 24)
@@ -153,6 +167,8 @@ void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cn
     //Msg type 24, partno 0 contains vessel name
     if(aisPacket->msgType == 24 && aisPacket->partNo == 0)
         updateVesselName(targetLog, aisPacket);
+    if(aisPacket->msgType == 24 && aisPacket->partNo == 1)
+        updateVesselDetails(targetLog, aisPacket);
 
     if(aisPacket->msgType == 5 || aisPacket->msgType == 19){
         updateVesselName(targetLog, aisPacket);
