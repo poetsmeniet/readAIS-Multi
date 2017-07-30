@@ -86,14 +86,14 @@ void printTargetList(struct aisTargetLog *targetLog){
     atl *alist = targetLog; //Pointer to targetLog
     time_t currentTime = time(NULL);
     char staleNote[8] = "\0";
-    int maxAge = 8; //Target age in minutes
+    int maxAge = 10; //Target age in minutes
     size_t cnt = 0;
     size_t cntC = 0;
     
     printf("Nr\tType\tMMSI\t\tSog\tCog\tLat/ Lon\t\tDst\tCnty\tLen (m)\tVesselName\n");
     while(alist->next != NULL){
         //denote "stale" targets
-        if(alist->lastUpdate < (currentTime - (60 * maxAge -2 )))
+        if(alist->lastUpdate < (currentTime - (60 * (maxAge - 5) )))
             memcpy(staleNote, "(stale)\0", 8);
         else
             staleNote[0] = '\0';
@@ -172,6 +172,8 @@ void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cn
 
     if(aisPacket->msgType == 5 || aisPacket->msgType == 19){
         updateVesselName(targetLog, aisPacket);
+        if(aisPacket->length > 0)
+            updateVesselDetails(targetLog, aisPacket);
     }
 
     printTargetList(targetLog);
