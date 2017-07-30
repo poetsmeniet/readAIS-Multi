@@ -3,6 +3,7 @@
 #include <string.h>
 #include "readAIS-Multi-parse.h"
 #include "readAIS-Multi-targetLogger.h"
+#include "logger.h"
 #define MAXLEN 120
 #define DEVICE "/dev/ttyUSB0"
 #define clear() printf("\033[H\033[J") //to clear the linux term
@@ -13,6 +14,8 @@
 FILE *openDevice();
 
 int main(void){
+    char logFile[] = "aisMulti.log";
+    initLogr(logFile);
     aisP aisPacket;
     char *line = malloc(sizeof(char) * MAXLEN);
     size_t len = 0;
@@ -49,6 +52,9 @@ int main(void){
                 || aisPacket.msgType == 3\
               ){
              manageTargetList(&aisPacket, targetLog, cc);
+             //debug;
+             if(aisPacket.msgType == 5)
+                 logr(0, "msgType 5 detected");
             }
             line[0]='\0';
 

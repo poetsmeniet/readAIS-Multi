@@ -1,6 +1,6 @@
 NAME = readAIS-Multi
 
-CODE_FILES = main.c readAIS-Multi-parse.c readAIS-Multi-targetLogger.c gpsTools.c
+CODE_FILES = main.c readAIS-Multi-parse.c readAIS-Multi-targetLogger.c gpsTools.c logger.c
 
 DOC_FILES = docs
 DEBUG = YES
