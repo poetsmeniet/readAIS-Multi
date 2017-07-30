@@ -49,7 +49,7 @@ float degDecMin2DecDeg(char* degDecMin, char hem, size_t len){
         return decdeg * sign; 
 }
 
-//Extracts lat/lon from nema 0183 sentence (gps dongle)
+//Extracts lat/lon from nmea 0183 sentence (gps dongle)
 void returnGPSPos(gpsPos *myPos){
     char *line = malloc(sizeof(char) * 120);
     size_t len = 0;
