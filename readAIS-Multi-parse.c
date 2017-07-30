@@ -389,6 +389,27 @@ void decodePayload(aisP * aisPacket){
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             assignUIntFromBin(subStr, &aisPacket->partNo);
             free(subStr);
+            
+            //dimensions in M: 
+            //- DtoBow: 132-140
+            //- DtoStern: 141-149
+            start = 132;//Get dimensions to Bow
+            end = 140;
+            subStr = malloc((end - start) + 2 * sizeof(char));
+            assignSubstring(aisPacket->binaryPayload, start, end, subStr);
+            size_t DtoBow;
+            assignUIntFromBin(subStr, &DtoBow);
+            free(subStr);
+
+            start = 141;//Get dimensions to Stern
+            end = 149;
+            subStr = malloc((end - start) + 2 * sizeof(char));
+            assignSubstring(aisPacket->binaryPayload, start, end, subStr);
+            size_t DtoStern;
+            assignUIntFromBin(subStr, &DtoStern);
+            free(subStr);
+            
+            aisPacket->length = (DtoBow + DtoStern);
         }
 
         if(aisPacket->msgType == 19){ //msg type 19, extended report Class B
@@ -408,7 +429,27 @@ void decodePayload(aisP * aisPacket){
 
             assignSubstring(aisPacket->binaryPayload, start, end, subStr);
             retShipnameFrom6bitsString(subStr, aisPacket);
-            printf("!!!!! got vesselName from type 5 msg: %s\n", aisPacket->vesselName);
             free(subStr);
+
+            //dimensions in M: 
+            //- DtoBow: 240-248
+            //- DtoStern: 249-257
+            start = 240;//Get dimensions to Bow
+            end = 248;
+            subStr = malloc((end - start) + 2 * sizeof(char));
+            assignSubstring(aisPacket->binaryPayload, start, end, subStr);
+            size_t DtoBow;
+            assignUIntFromBin(subStr, &DtoBow);
+            free(subStr);
+
+            start = 249;//Get dimensions to Stern
+            end = 257;
+            subStr = malloc((end - start) + 2 * sizeof(char));
+            assignSubstring(aisPacket->binaryPayload, start, end, subStr);
+            size_t DtoStern;
+            assignUIntFromBin(subStr, &DtoStern);
+            free(subStr);
+            
+            aisPacket->length = (DtoBow + DtoStern);
         }
 }

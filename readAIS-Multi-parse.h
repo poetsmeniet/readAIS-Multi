@@ -21,6 +21,7 @@ typedef struct aisPacket{
     float lon;
     float lat;
     unsigned int ts;
+    unsigned int length;
 }aisP;
 
 unsigned int nmeaChecksumVerified(char *sentence);
