@@ -86,14 +86,14 @@ void printTargetList(struct aisTargetLog *targetLog){
     atl *alist = targetLog; //Pointer to targetLog
     time_t currentTime = time(NULL);
     char staleNote[8] = "\0";
-    int maxAge = 5; //Target age in minutes
+    int maxAge = 8; //Target age in minutes
     size_t cnt = 0;
     size_t cntC = 0;
     
     printf("Nr\tType\tMMSI\t\tSog\tCog\tLat/ Lon\t\tDst\tCnty\tLen (m)\tVesselName\n");
     while(alist->next != NULL){
         //denote "stale" targets
-        if(alist->lastUpdate < (currentTime - (60 * maxAge)))
+        if(alist->lastUpdate < (currentTime - (60 * maxAge -2 )))
             memcpy(staleNote, "(stale)\0", 8);
         else
             staleNote[0] = '\0';
