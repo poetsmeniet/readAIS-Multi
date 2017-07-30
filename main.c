@@ -5,7 +5,6 @@
 #include "readAIS-Multi-targetLogger.h"
 #define MAXLEN 120
 #define DEVICE "/dev/ttyUSB0"
-//#define DEVICE "dump4000"
 #define clear() printf("\033[H\033[J") //to clear the linux term
 
 //Read AIS-MULTI data device
@@ -40,6 +39,7 @@ int main(void){
             returnBinaryPayload(aisPacket.payload, &aisPacket); //Get binary payload
             
             decodePayload(&aisPacket);//Decode bitstring (binary payload)
+
             if(aisPacket.msgType == 18\
                 || aisPacket.msgType == 19\
                 || aisPacket.msgType == 5\
@@ -48,7 +48,6 @@ int main(void){
                 || aisPacket.msgType == 2\
                 || aisPacket.msgType == 3\
               ){
-             clear();
              manageTargetList(&aisPacket, targetLog, cc);
             }
             line[0]='\0';
