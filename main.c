@@ -53,9 +53,10 @@ int main(void){
               ){
              manageTargetList(&aisPacket, targetLog, cc);
              //debug;
-             if(aisPacket.msgType == 5)
-                 logr(0, "msgType 5 detected");
+             //if(aisPacket.msgType == 5)
+//                 logr(0, "msgType %d detected", aisPacket.msgType);
             }
+                 logr(0, "msgType %d detected (%d):: %s", aisPacket.msgType, aisPacket.MMSI, aisPacket.vesselName);
             line[0]='\0';
 
         }
