@@ -14,8 +14,8 @@ typedef struct aisTargetLog{
     time_t lastUpdate;
     char cnty[3];
     double dst;
-    struct aisTargetLog *next;
     size_t length;
+    struct aisTargetLog *next;
 }atl;
 
 struct cntyCodes{

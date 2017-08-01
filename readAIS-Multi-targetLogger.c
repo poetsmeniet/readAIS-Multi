@@ -7,20 +7,6 @@
 #include "gpsTools.h"
 #define clear() printf("\033[H\033[J") //to clear the linux term
 
-//Silly function, needs to be replaced
-unsigned int ret1st3Dgts(unsigned int MMSI){
-    size_t cnt =0;
-    while(MMSI != 0){
-       if(cnt == 6)
-           return MMSI;
-       MMSI /= 10;
-       cnt++;
-    }
-    return 0;
-}
-
-void returnCntyCodes(struct cntyCodes *cc); 
-
 //Returns country name, use locally
 void returnCntyName(char *currCnty, unsigned int cntyCode, struct cntyCodes *cc){
     size_t cnt = 0;
@@ -51,6 +37,18 @@ void updateTarget(atl *targetLog, aisP * aisPacket, gpsPos *myPos){
         }
         pushList = pushList->next;
     }
+}
+
+//returns 1st 3 digits of MMSI
+unsigned int ret1st3Dgts(unsigned int MMSI){
+    size_t cnt =0;
+    while(MMSI != 0){
+       if(cnt == 6)
+           return MMSI;
+       MMSI /= 10;
+       cnt++;
+    }
+    return 0;
 }
 
 void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCodes *cc, gpsPos *myPos){
@@ -86,7 +84,7 @@ void printTargetList(struct aisTargetLog *targetLog){
     atl *alist = targetLog; //Pointer to targetLog
     time_t currentTime = time(NULL);
     char staleNote[8] = "\0";
-    int maxAge = 10; //Target age in minutes
+    int maxAge = 20; //Target age in minutes
     size_t cnt = 0;
     size_t cntC = 0;
     
@@ -151,6 +149,51 @@ void updateVesselName(atl *targetLog, aisP * aisPacket){
     }
 }
 
+void bubbleSortLinkedListAsc(atl *myList){
+    atl *tmpList = myList;
+    size_t swapCnt = 0;
+    while(tmpList->next != NULL){
+        if(tmpList->dst > tmpList->next->dst){
+            //Prepare swapping of positions
+            atl *first = malloc(sizeof(atl));
+            memcpy(first, tmpList, sizeof(atl));
+            atl *second = malloc(sizeof(atl));
+            memcpy(second, tmpList->next, sizeof(atl));
+
+            //Swap the data
+            tmpList->msgType = second->msgType;
+            memcpy(tmpList->vesselName, second->vesselName, sizeof(second->vesselName));
+            memcpy(tmpList->cnty, second->cnty, sizeof(second->cnty));
+            tmpList->MMSI = second->MMSI;
+            tmpList->heading = second->heading;
+            tmpList->cog = second->cog;
+            tmpList->sog = second->sog;
+            tmpList->lat = second->lat;
+            tmpList->lon = second->lon;
+            tmpList->lastUpdate = second->lastUpdate;
+            tmpList->dst= second->dst;
+            tmpList->length= second->length;
+            
+            tmpList->next->msgType = first->msgType;
+            memcpy(tmpList->next->vesselName, first->vesselName, sizeof(first->vesselName));
+            memcpy(tmpList->next->cnty, first->cnty, sizeof(first->cnty));
+            tmpList->next->MMSI = first->MMSI;
+            tmpList->next->heading = first->heading;
+            tmpList->next->cog = first->cog;
+            tmpList->next->sog = first->sog;
+            tmpList->next->lat = first->lat;
+            tmpList->next->lon = first->lon;
+            tmpList->next->lastUpdate = first->lastUpdate;
+            tmpList->next->dst= first->dst;
+            tmpList->next->length= first->length;
+            swapCnt++;
+        }
+        tmpList = tmpList->next;
+    }
+    if(swapCnt > 0)//Recurse, if necessary
+        bubbleSortLinkedListAsc(myList);
+}
+
 //Manges AIS target list
 void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cntyCodes *cc){
     gpsPos myPos; //Get station current GPS coords
@@ -176,6 +219,7 @@ void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cn
             updateVesselDetails(targetLog, aisPacket);
     }
 
+    bubbleSortLinkedListAsc(targetLog);
     printTargetList(targetLog);
 }
 
