@@ -79,8 +79,8 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCode
     pushList->next->next = NULL;
 }
 
-void printTargetList(struct aisTargetLog *targetLog){
-    clear();
+int printTargetList(struct aisTargetLog *targetLog, gpsPos *myPos){
+    clear(); //Clear terminal (linux)
     atl *alist = targetLog; //Pointer to targetLog
     time_t currentTime = time(NULL);
     char staleNote[8] = "\0";
@@ -88,6 +88,7 @@ void printTargetList(struct aisTargetLog *targetLog){
     size_t cnt = 0;
     size_t cntC = 0;
     
+    printf("Current receiver position: %f %f\n", myPos->lat, myPos->lon);
     printf("Nr\tType\tMMSI\t\tSog\tCog\tLat/ Lon\t\tDst\tCnty\tLen (m)\tVesselName\n");
     while(alist->next != NULL){
         //denote "stale" targets
@@ -96,7 +97,8 @@ void printTargetList(struct aisTargetLog *targetLog){
         else
             staleNote[0] = '\0';
 
-        if(alist->lastUpdate > (currentTime - (60 * (maxAge)))){
+        if(alist->lastUpdate > (currentTime - (60 * (maxAge)))\
+                && ret1st3Dgts(alist->MMSI) > 200){
             printf("%d:\t(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%.2f\t%s\t%d\t%s %s\n", cnt,\
                 alist->msgType, alist->MMSI,
                 alist->sog, alist->cog, 
@@ -110,6 +112,7 @@ void printTargetList(struct aisTargetLog *targetLog){
         alist = alist->next;
     }
     printf("In summary: %d targets in list, %d active.\n", cnt, cntC);
+    return 0;
 }
 
 _Bool isNewTarget(atl *targetLog, aisP * aisPacket){
@@ -220,7 +223,7 @@ void manageTargetList(aisP *aisPacket, struct aisTargetLog *targetLog, struct cn
     }
 
     bubbleSortLinkedListAsc(targetLog);
-    printTargetList(targetLog);
+    printTargetList(targetLog, &myPos);
 }
 
 void returnCntyCodes(struct cntyCodes *cc){
