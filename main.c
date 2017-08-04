@@ -33,34 +33,27 @@ int main(void){
     while(1){
     //while(!feof(fp)){
         getline(&line, &len, fp);
-
-        if(strlen(line) > 40 && strlen(line) < 55){ //Saves about 25% performance
-            memcpy(aisPacket.vesselName, "Unknown\0", 8 * sizeof(char));
-                    
-            parseMsg(line, &aisPacket);//Get packet tokens
+        memcpy(aisPacket.vesselName, "Unknown\0", 8 * sizeof(char));
+                
+        parseMsg(line, &aisPacket);//Get packet tokens
     
-            returnBinaryPayload(aisPacket.payload, &aisPacket); //Get binary payload
-            
-            decodePayload(&aisPacket);//Decode bitstring (binary payload)
-
-            if(aisPacket.msgType == 18\
-                || aisPacket.msgType == 19\
-                || aisPacket.msgType == 5\
-                || aisPacket.msgType == 24\
-                || aisPacket.msgType == 1\
-                || aisPacket.msgType == 2\
-                || aisPacket.msgType == 3\
-              ){
-             manageTargetList(&aisPacket, targetLog, cc);
-             //debug;
-             //if(aisPacket.msgType == 5)
-//                 logr(0, "msgType %d detected", aisPacket.msgType);
-            }
-                 logr(0, "msgType %d detected (%d):: %s", aisPacket.msgType, aisPacket.MMSI, aisPacket.vesselName);
-            line[0]='\0';
-
-        }
+        returnBinaryPayload(aisPacket.payload, &aisPacket); //Get binary payload
         
+        decodePayload(&aisPacket);//Decode bitstring (binary payload)
+
+        if(aisPacket.msgType == 18\
+            || aisPacket.msgType == 19\
+            || aisPacket.msgType == 5\
+            || aisPacket.msgType == 24\
+            || aisPacket.msgType == 1\
+            || aisPacket.msgType == 2\
+            || aisPacket.msgType == 3\
+          ){
+         manageTargetList(&aisPacket, targetLog, cc);
+        }
+        logr(0, "msgType %d detected (%d):: %s", aisPacket.msgType, aisPacket.MMSI, aisPacket.vesselName);
+        printf(".");
+        line[0]='\0';
     }
     free(line);
     return 0;
