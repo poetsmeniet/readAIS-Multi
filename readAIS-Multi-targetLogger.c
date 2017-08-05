@@ -21,6 +21,7 @@ void returnCntyName(char *currCnty, unsigned int cntyCode, struct cntyCodes *cc)
 }
 
 void updateTarget(atl *targetLog, aisP * aisPacket, gpsPos *myPos){
+    printf(" Updating target list..\n");
     time_t currentTime = time(NULL);
     atl *pushList = targetLog;
 
@@ -52,7 +53,6 @@ unsigned int ret1st3Dgts(unsigned int MMSI){
 }
 
 void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCodes *cc, gpsPos *myPos){
-    printf(" Pushing target: type: %d MMSI: %d\n", aisPacket->msgType, aisPacket->MMSI);
     time_t currentTime = time(NULL);
     atl *pushList = targetLog;
 
@@ -65,24 +65,24 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCode
     returnCntyName(currCnty, ret1st3Dgts(aisPacket->MMSI), cc);
 
     pushList->next = malloc(sizeof(struct aisTargetLog));
-    memcpy(pushList->vesselName, aisPacket->vesselName, sizeof(aisPacket->vesselName));
-    memcpy(pushList->cnty, currCnty, sizeof(currCnty));;
-    pushList->msgType = aisPacket->msgType;
-    pushList->MMSI = aisPacket->MMSI;
-    pushList->heading = aisPacket->heading;
-    pushList->cog = aisPacket->cog;
-    pushList->sog = aisPacket->sog;
-    pushList->lat = aisPacket->lat;
-    pushList->lon = aisPacket->lon;
-    pushList->lastUpdate = currentTime;
-    pushList->dst = calcDistance(myPos->lat, myPos->lon, aisPacket->lat, aisPacket->lon);
-    pushList->length = 0;
+    memcpy(pushList->next->vesselName, aisPacket->vesselName, sizeof(aisPacket->vesselName));
+    memcpy(pushList->next->cnty, currCnty, sizeof(currCnty));;
+    pushList->next->msgType = aisPacket->msgType;
+    pushList->next->MMSI = aisPacket->MMSI;
+    pushList->next->heading = aisPacket->heading;
+    pushList->next->cog = aisPacket->cog;
+    pushList->next->sog = aisPacket->sog;
+    pushList->next->lat = aisPacket->lat;
+    pushList->next->lon = aisPacket->lon;
+    pushList->next->lastUpdate = currentTime;
+    pushList->next->dst = calcDistance(myPos->lat, myPos->lon, aisPacket->lat, aisPacket->lon);
+    pushList->next->length = 0;
     pushList->next->next = NULL;
 }
 
 int printTargetList(struct aisTargetLog *targetLog, gpsPos *myPos){
     //clear(); //Clear terminal (linux)
-    atl *alist = targetLog->next; //Pointer to targetLog
+    atl *alist = targetLog; //Pointer to targetLog
     time_t currentTime = time(NULL);
     char staleNote[8] = "\0";
     int maxAge = 20; //Target age in minutes

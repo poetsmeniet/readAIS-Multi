@@ -6,7 +6,7 @@
 #include "logger.h"
 #define MAXLEN 120
 //#define DEVICE "/dev/ttyUSB0"
-#define DEVICE "dump1"
+#define DEVICE "dump2"
 #define clear() printf("\033[H\033[J") //to clear the linux term
 
 //Read AIS-MULTI data device
@@ -24,6 +24,7 @@ int main(void){
     //Inititalize target log struct (bookkeeping AIS targets)
     struct aisTargetLog *targetLog;
     targetLog = malloc(sizeof(struct aisTargetLog)); //Stores AIS targets
+    targetLog->msgType = 99;
     targetLog->next = NULL;
     
     //Country code stuff
@@ -51,7 +52,6 @@ int main(void){
                 || aisPacket.msgType == 2\
                 || aisPacket.msgType == 3\
               ){
-                printf("calling managetargetlis..\n");
              manageTargetList(&aisPacket, targetLog, cc);
             }
             logr(0, "msgType %d detected (%d):: %s", aisPacket.msgType, aisPacket.MMSI, aisPacket.vesselName);
