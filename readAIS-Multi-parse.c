@@ -36,7 +36,7 @@ struct sixbitAsciiTable sixbitAscii[64] = {
 };
 
 unsigned int nmeaChecksumVerified(char *sentence){
-    if(strlen(sentence) > 20){ //Test sentence length
+    if(strlen(sentence) > 15){ //Test sentence length
         int checkSum = 0;
         size_t i;
 
@@ -46,9 +46,9 @@ unsigned int nmeaChecksumVerified(char *sentence){
         }
 
         //Grab sentence checksum
-        char *subStr = malloc(2 * sizeof(char));
+        char *subStr = malloc(4 * sizeof(char));
         size_t start = strlen(sentence) - 4;
-        size_t end = strlen(sentence) - 1;
+        size_t end = strlen(sentence) - 2;
 
         assignSubstring(sentence, start, end, subStr);
  
@@ -59,6 +59,7 @@ unsigned int nmeaChecksumVerified(char *sentence){
                 rc = 1;
 
         free(subStr);
+        //printf("Sentence was: %s", sentence);
 
         return rc;
     }else{
