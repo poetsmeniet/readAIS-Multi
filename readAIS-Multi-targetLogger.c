@@ -52,6 +52,7 @@ unsigned int ret1st3Dgts(unsigned int MMSI){
 }
 
 void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCodes *cc, gpsPos *myPos){
+    printf(" Pushing target: type: %d MMSI: %d\n", aisPacket->msgType, aisPacket->MMSI);
     time_t currentTime = time(NULL);
     atl *pushList = targetLog;
 
@@ -80,8 +81,8 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCode
 }
 
 int printTargetList(struct aisTargetLog *targetLog, gpsPos *myPos){
-    clear(); //Clear terminal (linux)
-    atl *alist = targetLog; //Pointer to targetLog
+    //clear(); //Clear terminal (linux)
+    atl *alist = targetLog->next; //Pointer to targetLog
     time_t currentTime = time(NULL);
     char staleNote[8] = "\0";
     int maxAge = 20; //Target age in minutes
@@ -90,15 +91,15 @@ int printTargetList(struct aisTargetLog *targetLog, gpsPos *myPos){
     
     printf("Current receiver position: %f %f\n", myPos->lat, myPos->lon);
     printf("Nr\tType\tMMSI\t\tSog\tCog\tLat/ Lon\t\tDst\tCnty\tLen (m)\tVesselName\n");
-    while(alist->next != NULL){
+    while(alist != NULL){
         //denote "stale" targets
         if(alist->lastUpdate < (currentTime - (60 * (maxAge - 5) )))
             memcpy(staleNote, "(stale)\0", 8);
         else
             staleNote[0] = '\0';
 
-        if(alist->lastUpdate > (currentTime - (60 * (maxAge)))\
-                && ret1st3Dgts(alist->MMSI) > 200){
+        //if(alist->lastUpdate > (currentTime - (60 * (maxAge)))\
+        //        && ret1st3Dgts(alist->MMSI) > 200){
             printf("%d:\t(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%.2f\t%s\t%d\t%s %s\n", cnt,\
                 alist->msgType, alist->MMSI,
                 alist->sog, alist->cog, 
@@ -106,7 +107,7 @@ int printTargetList(struct aisTargetLog *targetLog, gpsPos *myPos){
                 alist->cnty, alist->length,
                 alist->vesselName, staleNote);
             cntC++;
-        }
+        //}
         cnt++;
 
         alist = alist->next;

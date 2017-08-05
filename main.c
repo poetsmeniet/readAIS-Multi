@@ -5,7 +5,8 @@
 #include "readAIS-Multi-targetLogger.h"
 #include "logger.h"
 #define MAXLEN 120
-#define DEVICE "/dev/ttyUSB0"
+//#define DEVICE "/dev/ttyUSB0"
+#define DEVICE "dump1"
 #define clear() printf("\033[H\033[J") //to clear the linux term
 
 //Read AIS-MULTI data device
@@ -30,28 +31,31 @@ int main(void){
     returnCntyCodes(cc); //test efficiency, maybe run this once in main
 
     FILE *fp = openDevice();
-    while(1){
-    //while(!feof(fp)){
+    //while(1){
+    while(!feof(fp)){
         getline(&line, &len, fp);
-        memcpy(aisPacket.vesselName, "Unknown\0", 8 * sizeof(char));
-                
-        parseMsg(line, &aisPacket);//Get packet tokens
+        if(strlen(line) > 35){
+            memcpy(aisPacket.vesselName, "Unknown\0", 8 * sizeof(char));
+                    
+            parseMsg(line, &aisPacket);//Get packet tokens
     
-        returnBinaryPayload(aisPacket.payload, &aisPacket); //Get binary payload
-        
-        decodePayload(&aisPacket);//Decode bitstring (binary payload)
-
-        if(aisPacket.msgType == 18\
-            || aisPacket.msgType == 19\
-            || aisPacket.msgType == 5\
-            || aisPacket.msgType == 24\
-            || aisPacket.msgType == 1\
-            || aisPacket.msgType == 2\
-            || aisPacket.msgType == 3\
-          ){
-         manageTargetList(&aisPacket, targetLog, cc);
+            returnBinaryPayload(aisPacket.payload, &aisPacket); //Get binary payload
+            
+            decodePayload(&aisPacket);//Decode bitstring (binary payload)
+            //printf(" and msgType is: %d\n", aisPacket.msgType);
+            if(aisPacket.msgType == 18\
+                || aisPacket.msgType == 19\
+                || aisPacket.msgType == 5\
+                || aisPacket.msgType == 24\
+                || aisPacket.msgType == 1\
+                || aisPacket.msgType == 2\
+                || aisPacket.msgType == 3\
+              ){
+                printf("calling managetargetlis..\n");
+             manageTargetList(&aisPacket, targetLog, cc);
+            }
+            logr(0, "msgType %d detected (%d):: %s", aisPacket.msgType, aisPacket.MMSI, aisPacket.vesselName);
         }
-        logr(0, "msgType %d detected (%d):: %s", aisPacket.msgType, aisPacket.MMSI, aisPacket.vesselName);
         printf(".");
         line[0]='\0';
     }
