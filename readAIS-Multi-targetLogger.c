@@ -81,7 +81,7 @@ void pushTarget(struct aisTargetLog *targetLog, aisP *aisPacket, struct cntyCode
 }
 
 int printTargetList(struct aisTargetLog *targetLog, gpsPos *myPos){
-    //clear(); //Clear terminal (linux)
+    clear(); //Clear terminal (linux)
     atl *alist = targetLog; //Pointer to targetLog
     time_t currentTime = time(NULL);
     char staleNote[8] = "\0";
@@ -98,8 +98,8 @@ int printTargetList(struct aisTargetLog *targetLog, gpsPos *myPos){
         else
             staleNote[0] = '\0';
 
-        //if(alist->lastUpdate > (currentTime - (60 * (maxAge)))\
-        //        && ret1st3Dgts(alist->MMSI) > 200){
+        if(alist->lastUpdate > (currentTime - (60 * (maxAge)))\
+                && ret1st3Dgts(alist->MMSI) > 200){
             printf("%d:\t(%d)\t%i\t%.2f\t%.2f°\t%.6f %.6f\t%.2f\t%s\t%d\t%s %s\n", cnt,\
                 alist->msgType, alist->MMSI,
                 alist->sog, alist->cog, 
@@ -107,7 +107,7 @@ int printTargetList(struct aisTargetLog *targetLog, gpsPos *myPos){
                 alist->cnty, alist->length,
                 alist->vesselName, staleNote);
             cntC++;
-        //}
+        }
         cnt++;
 
         alist = alist->next;

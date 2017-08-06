@@ -5,14 +5,15 @@
 #include "readAIS-Multi-targetLogger.h"
 #include "logger.h"
 #define MAXLEN 120
-//#define DEVICE "/dev/ttyUSB0"
-#define DEVICE "dump2"
+#define DEVICE "/dev/ttyUSB0"
+//#define DEVICE "dump2"
 #define clear() printf("\033[H\033[J") //to clear the linux term
 
 //Read AIS-MULTI data device
 //Protocol description: http://catb.org/gpsd/AIVDM.html#_open_source_implementations
 
 FILE *openDevice();
+void freeLinkedList(atl *targetList);
 
 int main(void){
     char logFile[] = "aisMulti.log";
@@ -25,6 +26,8 @@ int main(void){
     struct aisTargetLog *targetLog;
     targetLog = malloc(sizeof(struct aisTargetLog)); //Stores AIS targets
     targetLog->msgType = 99;
+    targetLog->lastUpdate = 99;
+    targetLog->dst= 0;
     targetLog->next = NULL;
     
     //Country code stuff
@@ -32,8 +35,8 @@ int main(void){
     returnCntyCodes(cc); //test efficiency, maybe run this once in main
 
     FILE *fp = openDevice();
-    //while(1){
-    while(!feof(fp)){
+    while(1){
+    //while(!feof(fp)){
         getline(&line, &len, fp);
         if(strlen(line) > 35){
             memcpy(aisPacket.vesselName, "Unknown\0", 8 * sizeof(char));
@@ -60,6 +63,7 @@ int main(void){
         line[0]='\0';
     }
     free(line);
+    freeLinkedList(targetLog);
     return 0;
 }
 
@@ -73,4 +77,14 @@ FILE *openDevice(){
         printf(" success\n");
     }
     return fp;
+}
+
+void freeLinkedList(atl *targetList){
+    atl *head = targetList;
+    atl *curr;
+    while ((curr = head) != NULL) { // set curr to head, stop if list empty.
+        head = head->next;          // advance head to next element.
+        free (curr);                // delete saved pointer.
+    }
+    printf("Done freeing targetList\n");
 }
