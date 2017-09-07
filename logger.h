@@ -1,5 +1,5 @@
 /*
-tcp_pthread_coban
+logger
 
 Copyright (c) 2017 Thomas Wink <thomas@geenbs.nl>
 

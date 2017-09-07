@@ -1,5 +1,6 @@
 # readAIS-Multi
 Reader for AIS-Multi device and minor implementation of AIS protocol decoder
+Protocol description: http://catb.org/gpsd/AIVDM.html#_open_source_implementations
 
 This is a simple AIS decoder that displays a list of moving AIS targets with the following information:
 
